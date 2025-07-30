@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import userModel from "../modules/user.model.js";
+import userModel, { IUser } from "../modules/user.model.js";
 
 export const is_logged_in = async (
   req: Request,
@@ -26,4 +26,14 @@ export const is_logged_in = async (
   } catch (err) {
     res.status(401).json({ error: "Invalid token" });
   }
+};
+
+export const admin_role_middleware = (role: boolean) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const user = res.locals.user as IUser;
+    if (user?.isAdmin !== role) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    next();
+  };
 };

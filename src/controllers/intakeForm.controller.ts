@@ -13,9 +13,9 @@ export const createIntakeForm_controller = async (
       title: req.body.title,
       formType: req.body.formType,
       description: req.body.description,
-      status: "pending" as const,
       priority: req.body.priority || "normal",
-      dueDate: req.body.dueDate ? new Date(req.body.dueDate) : undefined,
+      dueDate: req.body.dueDate ?? new Date(),
+      status: "pending" as const,
     };
     const form = await storage.createIntakeForm(formData);
     return res.status(200).send(form);

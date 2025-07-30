@@ -13,14 +13,17 @@ import UserProgress from "./modules/userProgress.model.js";
 export interface IUser {
   _id: mongoose.Types.ObjectId;
   email: string;
-  firstName: string;
-  lastName: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   dateOfBirth?: string;
   phoneNumber?: string;
   passwordHash?: string;
   profileImageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
+  isAdmin: boolean;
 }
 
 export interface IIntakeForm {
@@ -229,6 +232,15 @@ export class MongoDBStorage implements IStorage {
   async getUserByEmail(email: string): Promise<IUser | undefined> {
     try {
       const user = await User.findOne({ email });
+      return user?.toObject() as unknown as IUser | undefined;
+    } catch (error) {
+      console.error("Error getting user by email:", error);
+      return undefined;
+    }
+  }
+  async getUserByUsername(username: string): Promise<IUser | undefined> {
+    try {
+      const user = await User.findOne({ username });
       return user?.toObject() as unknown as IUser | undefined;
     } catch (error) {
       console.error("Error getting user by email:", error);

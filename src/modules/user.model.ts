@@ -11,6 +11,7 @@ export interface IUser extends Document {
   passwordHash?: string;
   profileImageUrl?: string;
   isAdmin: boolean;
+  insuranceProvider?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -48,6 +49,9 @@ const userSchema = new Schema<IUser>(
     isAdmin: {
       type: Boolean,
       default: false,
+    },
+    insuranceProvider: {
+      type: String,
     },
   },
   {

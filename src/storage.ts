@@ -24,6 +24,7 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
   isAdmin: boolean;
+  insuranceProvider?: string;
 }
 
 export interface IIntakeForm {
@@ -141,6 +142,7 @@ export interface IStorage {
     user: Omit<IUser, "_id" | "createdAt" | "updatedAt">
   ): Promise<IUser>;
   updateUser(id: string, updates: Partial<IUser>): Promise<IUser>;
+  getUsers(): Promise<IUser[]>;
 
   // Intake forms
   getIntakeForms(userId: string): Promise<IIntakeForm[]>;
@@ -273,6 +275,11 @@ export class MongoDBStorage implements IStorage {
       throw new Error("User not found");
     }
     return user.toObject() as unknown as IUser;
+  }
+
+  async getUsers(): Promise<IUser[]> {
+    const users = await User.find();
+    return users.map((user) => user.toObject() as unknown as IUser);
   }
 
   // Intake forms

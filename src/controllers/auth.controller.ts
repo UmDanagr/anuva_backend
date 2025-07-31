@@ -9,6 +9,7 @@ import {
   admin_login_schema,
 } from "../validations/user.validation.js";
 import { storage } from "../storage.js";
+import { sendSMS } from "../services/twilio.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -178,5 +179,70 @@ export const get_admin_users_controller = async (
   } catch (error) {
     console.log("Get admin users error:", error);
     return res.status(500).json({ message: "Failed to get admin users" });
+  }
+};
+
+export const get_all_users_controller = async (req: Request, res: Response) => {
+  try {
+    const users = await storage.getUsers();
+    return res.status(200).json({
+      status: "success",
+      message: "User fetched successfully",
+      users,
+    });
+  } catch (error) {
+    console.log("Get all users error:", error);
+    return res.status(500).json({ message: "Failed to get all users" });
+  }
+};
+
+export const create_user_controller = async (req: Request, res: Response) => {
+  try {
+    const userData = req.body;
+    const user = await storage.getUserByEmail(userData.email);
+    if (user && user.isAdmin) {
+      return res
+        .status(400)
+        .json({ message: "User with this email already exists" });
+    }
+    const passwordHash = await bcrypt.hash(userData.password, 12);
+    const newUser = await storage.createUser({
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      dateOfBirth: userData.dateOfBirth,
+      phoneNumber: userData.phoneNumber,
+      passwordHash,
+      profileImageUrl: null,
+      isAdmin: false,
+      insuranceProvider: userData.insuranceProvider,
+    });
+
+    try {
+      const sms = await sendSMS(
+        userData.phoneNumber,
+        "Welcome to the app! this is your email: " +
+          newUser.email +
+          " and password: " +
+          userData.password
+      );
+      console.log("SMS sent successfully", sms);
+    } catch (smsError: any) {
+      console.warn(
+        "SMS sending failed, but user was created:",
+        smsError.message
+      );
+      // Continue with user creation even if SMS fails
+      // You might want to log this to a monitoring service in production
+    }
+
+    return res.status(201).json({
+      status: "success",
+      message: "User created successfully",
+      user: newUser,
+    });
+  } catch (error) {
+    console.log("Create user error:", error);
+    return res.status(400).json({ message: "Invalid user data" });
   }
 };

@@ -17,9 +17,10 @@ export const signup = async (req: Request, res: Response) => {
 
     const existingUser = await storage.getUserByEmail(userData.email);
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User with this email already exists" });
+      return res.status(400).json({
+        status: false,
+        message: "User with this email already exists",
+      });
     }
 
     const passwordHash = await bcrypt.hash(userData.password, 12);
@@ -37,6 +38,7 @@ export const signup = async (req: Request, res: Response) => {
     const token = generateToken(res, user._id as Types.ObjectId);
 
     return res.status(201).json({
+      status: "success",
       message: "Account created successfully",
       user: {
         id: user._id,
@@ -48,7 +50,10 @@ export const signup = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Signup error:", error);
-    return res.status(400).json({ message: "Invalid signup data" });
+    return res.status(400).json({
+      status: false,
+      message: "Invalid signup data",
+    });
   }
 };
 
@@ -58,24 +63,34 @@ export const login = async (req: Request, res: Response) => {
 
     const user = await storage.getUserByEmail(email);
     if (!user || !user.passwordHash) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({
+        status: false,
+        message: "Invalid email or password",
+      });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({
+        status: false,
+        message: "Invalid email or password",
+      });
     }
 
     const token = generateToken(res, user._id as Types.ObjectId);
 
     return res.status(200).json({
+      status: true,
       message: "Login successful",
       user,
       token,
     });
   } catch (error) {
     console.log("Login error:", error);
-    return res.status(400).json({ message: "Invalid login data" });
+    return res.status(400).json({
+      status: false,
+      message: "Invalid login data",
+    });
   }
 };
 export const logout = async (req: Request, res: Response) => {
@@ -84,25 +99,39 @@ export const logout = async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV !== "development",
     expires: new Date(0),
   });
-  res.status(200).json({ message: "Logged out successfully" });
+  res.status(200).json({
+    status: true,
+    message: "Logged out successfully",
+  });
 };
 
 export const getUser = async (req: Request, res: Response) => {
   try {
     if (!res.locals.user) {
-      return res.status(401).json({ message: "Not authenticated" });
+      return res.status(401).json({
+        status: false,
+        message: "Not authenticated",
+      });
     }
 
     const user = await storage.getUser(res.locals.user._id);
     if (!user) {
-      return res.status(401).json({ message: "Not authenticated" });
+      return res.status(401).json({
+        status: false,
+        message: "Not authenticated",
+      });
     }
 
     return res.status(200).json({
+      status: true,
+      message: "User fetched successfully",
       user,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Failed to get user" });
+    return res.status(500).json({
+      status: false,
+      message: "Failed to get user",
+    });
   }
 };
 
@@ -111,9 +140,10 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
     const userData = admin_signup_schema.parse(req.body);
     const existingUser = await storage.getUserByEmail(userData.email);
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User with this email already exists" });
+      return res.status(400).json({
+        status: false,
+        message: "User with this email already exists",
+      });
     }
     const passwordHash = await bcrypt.hash(userData.password, 12);
     const user = await storage.createUser({
@@ -127,14 +157,17 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
 
     const token = generateToken(res, user._id as Types.ObjectId);
     return res.status(201).json({
-      status: "success",
+      status: true,
       message: "Account created successfully",
       user,
       token,
     });
   } catch (error) {
     console.log("Admin signup error:", error);
-    return res.status(400).json({ message: "Invalid signup data" });
+    return res.status(400).json({
+      status: false,
+      message: "Invalid signup data",
+    });
   }
 };
 
@@ -143,22 +176,31 @@ export const admin_login_controller = async (req: Request, res: Response) => {
     const { username, password } = admin_login_schema.parse(req.body);
     const user = await storage.getUserByUsername(username);
     if (!user || !user.passwordHash || !user.isAdmin) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({
+        status: false,
+        message: "Invalid username or password",
+      });
     }
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({
+        status: false,
+        message: "Invalid username or password",
+      });
     }
     const token = generateToken(res, user._id as Types.ObjectId);
     return res.status(200).json({
-      status: "success",
+      status: true,
       message: "Login successful",
       user,
       token,
     });
   } catch (error) {
     console.log("Admin login error:", error);
-    return res.status(400).json({ message: "Invalid login data" });
+    return res.status(400).json({
+      status: false,
+      message: "Invalid login data",
+    });
   }
 };
 
@@ -169,16 +211,22 @@ export const get_admin_users_controller = async (
   try {
     const user = await storage.getUserByUsername(res.locals.user.username);
     if (!user || !user.isAdmin) {
-      return res.status(404).json({ message: "No users found" });
+      return res.status(404).json({
+        status: false,
+        message: "No users found",
+      });
     }
     return res.status(200).json({
-      status: "success",
+      status: true,
       message: "Users fetched successfully",
       user,
     });
   } catch (error) {
     console.log("Get admin users error:", error);
-    return res.status(500).json({ message: "Failed to get admin users" });
+    return res.status(500).json({
+      status: false,
+      message: "Failed to get admin users",
+    });
   }
 };
 
@@ -186,13 +234,16 @@ export const get_all_users_controller = async (req: Request, res: Response) => {
   try {
     const users = await storage.getUsers();
     return res.status(200).json({
-      status: "success",
+      status: true,
       message: "User fetched successfully",
       users,
     });
   } catch (error) {
     console.log("Get all users error:", error);
-    return res.status(500).json({ message: "Failed to get all users" });
+    return res.status(500).json({
+      status: false,
+      message: "Failed to get all users",
+    });
   }
 };
 
@@ -201,9 +252,10 @@ export const create_user_controller = async (req: Request, res: Response) => {
     const userData = req.body;
     const user = await storage.getUserByEmail(userData.email);
     if (user && user.isAdmin) {
-      return res
-        .status(400)
-        .json({ message: "User with this email already exists" });
+      return res.status(400).json({
+        status: false,
+        message: "User with this email already exists",
+      });
     }
     const passwordHash = await bcrypt.hash(userData.password, 12);
     const newUser = await storage.createUser({
@@ -237,12 +289,15 @@ export const create_user_controller = async (req: Request, res: Response) => {
     }
 
     return res.status(201).json({
-      status: "success",
+      status: true,
       message: "User created successfully",
       user: newUser,
     });
   } catch (error) {
     console.log("Create user error:", error);
-    return res.status(400).json({ message: "Invalid user data" });
+    return res.status(400).json({
+      status: false,
+      message: "Invalid user data",
+    });
   }
 };

@@ -23,8 +23,12 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     const password = await bcrypt.hash(userData.password, 12);
+    const patientId = `PAT${Math.floor(
+      100000 + Math.random() * 900000
+    ).toString()}`;
 
     const user = await storage.createUser({
+      patientId,
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
@@ -57,13 +61,13 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = loginSchema.parse(req.body);
+    const { patientId, password } = loginSchema.parse(req.body);
 
-    const user = await storage.getUserByEmail(email);
+    const user = await storage.getUserByPatientId(patientId);
     if (!user || !user.password) {
       return res.status(401).json({
         status: false,
-        message: "Invalid email or password",
+        message: "Invalid patientId or password",
       });
     }
 
@@ -71,7 +75,7 @@ export const login = async (req: Request, res: Response) => {
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
-        message: "Invalid email or password",
+        message: "Invalid patientId or password",
       });
     }
 
@@ -258,8 +262,12 @@ export const create_user_controller = async (req: Request, res: Response) => {
         message: "User with this email already exists",
       });
     }
+    const patientId = `PAT${Math.floor(
+      100000 + Math.random() * 900000
+    ).toString()}`;
     const password = await bcrypt.hash(userData.password, 12);
     const newUser = await storage.createUser({
+      patientId,
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,

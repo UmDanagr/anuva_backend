@@ -12,9 +12,9 @@ export const signupSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z
-    .string({ required_error: "Email is required" })
-    .email({ message: "Invalid email address" }),
+  patientId: z
+    .string({ required_error: "Patient ID is required" })
+    .min(8, { message: "Patient ID must be at least 8 characters long" }),
   password: z
     .string({ required_error: "Password is required" })
     .min(8, { message: "Password must be at least 8 characters long" }),

@@ -13,6 +13,7 @@ import adminUsers from "./modules/admin.users.js";
 // Type definitions for MongoDB models
 export interface IUser {
   _id: mongoose.Types.ObjectId;
+  patientId: string;
   email: string;
   firstName?: string;
   lastName?: string;
@@ -144,6 +145,7 @@ export interface IAdminUser {
 export interface IStorage {
   // User operations
   getUser(id: string): Promise<IUser | undefined>;
+  getUserByPatientId(patientId: string): Promise<IUser | undefined>;
   getUserByEmail(email: string): Promise<IUser | undefined>;
   getAdminUserByEmail(email: string): Promise<IAdminUser | undefined>;
   getAdminUserByUsername(userName: string): Promise<IAdminUser | undefined>;
@@ -239,6 +241,16 @@ export class MongoDBStorage implements IStorage {
       return user?.toObject() as unknown as IUser | undefined;
     } catch (error) {
       console.error("Error getting user:", error);
+      return undefined;
+    }
+  }
+
+  async getUserByPatientId(patientId: string): Promise<IUser | undefined> {
+    try {
+      const user = await User.findOne({ patientId });
+      return user?.toObject() as unknown as IUser | undefined;
+    } catch (error) {
+      console.error("Error getting user by patientId:", error);
       return undefined;
     }
   }

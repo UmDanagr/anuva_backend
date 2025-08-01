@@ -9,7 +9,6 @@ import {
   admin_login_schema,
 } from "../validations/user.validation.js";
 import { storage } from "../storage.js";
-import { sendSMS } from "../services/twilio.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -23,7 +22,7 @@ export const signup = async (req: Request, res: Response) => {
       });
     }
 
-    const passwordHash = await bcrypt.hash(userData.password, 12);
+    const password = await bcrypt.hash(userData.password, 12);
 
     const user = await storage.createUser({
       email: userData.email,
@@ -31,9 +30,8 @@ export const signup = async (req: Request, res: Response) => {
       lastName: userData.lastName,
       dateOfBirth: userData.dateOfBirth,
       phoneNumber: userData.phoneNumber,
-      passwordHash,
+      password,
       profileImageUrl: null,
-      isAdmin: false,
     });
     const token = generateToken(res, user._id as Types.ObjectId);
 
@@ -62,14 +60,14 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = loginSchema.parse(req.body);
 
     const user = await storage.getUserByEmail(email);
-    if (!user || !user.passwordHash) {
+    if (!user || !user.password) {
       return res.status(401).json({
         status: false,
         message: "Invalid email or password",
       });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
@@ -138,21 +136,21 @@ export const getUser = async (req: Request, res: Response) => {
 export const admin_signup_controller = async (req: Request, res: Response) => {
   try {
     const userData = admin_signup_schema.parse(req.body);
-    const existingUser = await storage.getUserByEmail(userData.email);
+    const existingUser = await storage.getAdminUserByEmail(userData.email);
     if (existingUser) {
       return res.status(400).json({
         status: false,
         message: "User with this email already exists",
       });
     }
-    const passwordHash = await bcrypt.hash(userData.password, 12);
-    const user = await storage.createUser({
-      username: userData.username,
+    const password = await bcrypt.hash(userData.password, 12);
+    const user = await storage.createAdminUser({
+      userName: userData.userName,
       email: userData.email,
       fullName: userData.fullName,
-      passwordHash,
+      phoneNumber: userData.phoneNumber,
+      password,
       profileImageUrl: null,
-      isAdmin: true,
     });
 
     const token = generateToken(res, user._id as Types.ObjectId);
@@ -173,15 +171,15 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
 
 export const admin_login_controller = async (req: Request, res: Response) => {
   try {
-    const { username, password } = admin_login_schema.parse(req.body);
-    const user = await storage.getUserByUsername(username);
-    if (!user || !user.passwordHash || !user.isAdmin) {
+    const { userName, password } = admin_login_schema.parse(req.body);
+    const user = await storage.getAdminUserByUsername(userName);
+    if (!user || !user.password) {
       return res.status(401).json({
         status: false,
         message: "Invalid username or password",
       });
     }
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
@@ -209,8 +207,10 @@ export const get_admin_users_controller = async (
   res: Response
 ) => {
   try {
-    const user = await storage.getUserByUsername(res.locals.user.username);
-    if (!user || !user.isAdmin) {
+    const user = await storage.getAdminUserByUsername(
+      res.locals.user.userName as string
+    );
+    if (!user) {
       return res.status(404).json({
         status: false,
         message: "No users found",
@@ -251,42 +251,23 @@ export const create_user_controller = async (req: Request, res: Response) => {
   try {
     const userData = req.body;
     const user = await storage.getUserByEmail(userData.email);
-    if (user && user.isAdmin) {
+    if (user) {
       return res.status(400).json({
         status: false,
         message: "User with this email already exists",
       });
     }
-    const passwordHash = await bcrypt.hash(userData.password, 12);
+    const password = await bcrypt.hash(userData.password, 12);
     const newUser = await storage.createUser({
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
       dateOfBirth: userData.dateOfBirth,
       phoneNumber: userData.phoneNumber,
-      passwordHash,
+      password,
       profileImageUrl: null,
-      isAdmin: false,
       insuranceProvider: userData.insuranceProvider,
     });
-
-    try {
-      const sms = await sendSMS(
-        userData.phoneNumber,
-        "Welcome to the app! this is your email: " +
-          newUser.email +
-          " and password: " +
-          userData.password
-      );
-      console.log("SMS sent successfully", sms);
-    } catch (smsError: any) {
-      console.warn(
-        "SMS sending failed, but user was created:",
-        smsError.message
-      );
-      // Continue with user creation even if SMS fails
-      // You might want to log this to a monitoring service in production
-    }
 
     return res.status(201).json({
       status: true,

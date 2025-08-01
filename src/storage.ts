@@ -8,22 +8,21 @@ import EmergencyContact from "./modules/emergencyContact.model.js";
 import UserSetting from "./modules/userSetting.model.js";
 import Achievement from "./modules/achievement.model.js";
 import UserProgress from "./modules/userProgress.model.js";
+import adminUsers from "./modules/admin.users.js";
 
 // Type definitions for MongoDB models
 export interface IUser {
   _id: mongoose.Types.ObjectId;
   email: string;
-  username?: string;
   firstName?: string;
   lastName?: string;
-  fullName?: string;
   dateOfBirth?: string;
   phoneNumber?: string;
-  passwordHash?: string;
+  password?: string;
   profileImageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
-  isAdmin: boolean;
+  isIntakeFormFilled?: boolean;
   insuranceProvider?: string;
 }
 
@@ -131,10 +130,23 @@ export interface IUserProgress {
   updatedAt: Date;
 }
 
+export interface IAdminUser {
+  _id: mongoose.Types.ObjectId;
+  userName?: string;
+  email: string;
+  fullName?: string;
+  phoneNumber?: string;
+  speciality?: string;
+  password?: string;
+  profileImageUrl?: string;
+}
+
 export interface IStorage {
   // User operations
   getUser(id: string): Promise<IUser | undefined>;
   getUserByEmail(email: string): Promise<IUser | undefined>;
+  getAdminUserByEmail(email: string): Promise<IAdminUser | undefined>;
+  getAdminUserByUsername(userName: string): Promise<IAdminUser | undefined>;
   createUser(
     user: Omit<IUser, "_id" | "createdAt" | "updatedAt">
   ): Promise<IUser>;
@@ -240,10 +252,32 @@ export class MongoDBStorage implements IStorage {
       return undefined;
     }
   }
+
+  async getAdminUserByEmail(email: string): Promise<IAdminUser | undefined> {
+    try {
+      const user = await adminUsers.findOne({ email });
+      return user?.toObject() as unknown as IAdminUser | undefined;
+    } catch (error) {
+      console.error("Error getting admin user by email:", error);
+      return undefined;
+    }
+  }
+
   async getUserByUsername(username: string): Promise<IUser | undefined> {
     try {
       const user = await User.findOne({ username });
       return user?.toObject() as unknown as IUser | undefined;
+    } catch (error) {
+      console.error("Error getting user by email:", error);
+      return undefined;
+    }
+  }
+  async getAdminUserByUsername(
+    userName: string
+  ): Promise<IAdminUser | undefined> {
+    try {
+      const user = await adminUsers.findOne({ userName });
+      return user?.toObject() as unknown as IAdminUser | undefined;
     } catch (error) {
       console.error("Error getting user by email:", error);
       return undefined;
@@ -256,6 +290,14 @@ export class MongoDBStorage implements IStorage {
     const user = new User(userData);
     const savedUser = await user.save();
     return savedUser.toObject() as unknown as IUser;
+  }
+
+  async createAdminUser(
+    userData: Omit<IAdminUser, "_id" | "createdAt" | "updatedAt">
+  ): Promise<IAdminUser> {
+    const user = new adminUsers(userData);
+    const savedUser = await user.save();
+    return savedUser.toObject() as unknown as IAdminUser;
   }
 
   async upsertUser(

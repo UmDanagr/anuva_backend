@@ -31,9 +31,7 @@ if (isTwilioConfigured()) {
       process.env.TWILIO_ACCOUNT_SID,
       process.env.TWILIO_AUTH_TOKEN
     );
-    console.log("✅ Twilio client initialized successfully");
   } catch (error) {
-    console.error("❌ Failed to initialize Twilio client:", error);
     twilioClient = null;
   }
 } else {
@@ -61,7 +59,6 @@ export const verifyPhoneNumber = async (phoneNumber: string) => {
         channel: "sms",
       });
 
-    console.log(`📱 Verification code sent to ${phoneNumber}`);
     return {
       success: true,
       message: `Verification code sent to ${phoneNumber}`,
@@ -118,7 +115,6 @@ export const isNumberVerified = async (phoneNumber: string) => {
   try {
     // For trial accounts, you need to verify numbers manually
     // This is a simplified check - in production you'd store verified numbers in your database
-    console.log(`🔍 Checking if ${phoneNumber} is verified...`);
     return false; // Default to false for trial accounts
   } catch (error) {
     console.error("Error checking number verification:", error);

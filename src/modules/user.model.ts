@@ -2,16 +2,14 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
   email: string;
-  username?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
-  fullName?: string;
   phoneNumber?: string;
-  passwordHash?: string;
+  password?: string;
   profileImageUrl?: string;
-  isAdmin: boolean;
   insuranceProvider?: string;
+  isIntakeFormFilled?: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -21,17 +19,10 @@ const userSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
-    username: {
-      type: String,
-      unique: true,
-    },
     firstName: {
       type: String,
     },
     lastName: {
-      type: String,
-    },
-    fullName: {
       type: String,
     },
     dateOfBirth: {
@@ -40,18 +31,18 @@ const userSchema = new Schema<IUser>(
     phoneNumber: {
       type: String,
     },
-    passwordHash: {
+    password: {
       type: String,
     },
     profileImageUrl: {
       type: String,
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
     insuranceProvider: {
       type: String,
+    },
+    isIntakeFormFilled: {
+      type: Boolean,
+      default: false,
     },
   },
   {

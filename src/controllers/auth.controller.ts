@@ -9,6 +9,7 @@ import {
   admin_login_schema,
 } from "../validations/user.validation.js";
 import { storage } from "../storage.js";
+import { sendEmail } from "../services/email_service.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -38,7 +39,12 @@ export const signup = async (req: Request, res: Response) => {
       profileImageUrl: null,
     });
     const token = generateToken(res, user._id as Types.ObjectId);
-
+    await sendEmail(
+      user.email,
+      "Welcome to our app",
+      `Welcome to our app. Your patient ID is ${user.patientId}. Please use this ID to login to your account.
+      <a href="http://localhost:3000/login">Login</a>`
+    );
     return res.status(201).json({
       status: "success",
       message: "Account created successfully",
@@ -278,6 +284,12 @@ export const create_user_controller = async (req: Request, res: Response) => {
       insuranceProvider: userData.insuranceProvider,
     });
 
+    await sendEmail(
+      newUser.email,
+      "Welcome to our app",
+      `Welcome to our app. Your patient ID is ${newUser.patientId}. Please use this ID to login to your account.
+      <a href="http://localhost:3000/login">Login</a>`
+    );
     return res.status(201).json({
       status: true,
       message: "User created successfully",

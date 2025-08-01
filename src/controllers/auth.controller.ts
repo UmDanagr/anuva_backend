@@ -208,8 +208,9 @@ export const get_admin_users_controller = async (
 ) => {
   try {
     const user = await storage.getAdminUserByUsername(
-      res.locals.user.userName as string
+      res.locals.admin_user.userName as string
     );
+    console.log(user);
     if (!user) {
       return res.status(404).json({
         status: false,

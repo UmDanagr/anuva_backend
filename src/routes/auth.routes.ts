@@ -13,6 +13,7 @@ import {
 import {
   admin_role_middleware,
   is_logged_in,
+  is_admin_logged_in,
 } from "../middlewares/authMiddleware.js";
 
 router.post("/signup", signup);
@@ -20,7 +21,7 @@ router.post("/login", login);
 router.get("/user", is_logged_in, getUser);
 router.post("/admin/signup", admin_signup_controller);
 router.post("/admin/login", admin_login_controller);
-router.use(is_logged_in, admin_role_middleware(true));
+router.use(is_admin_logged_in, admin_role_middleware(true));
 router.get("/admin/user", get_admin_users_controller);
 router.get("/admin/users", get_all_users_controller);
 router.post("/admin/create-user", create_user_controller);

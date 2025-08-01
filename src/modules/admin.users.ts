@@ -8,6 +8,7 @@ export interface IAdminUser extends Document {
   password?: string;
   profileImageUrl?: string;
   speciality?: string;
+  isAdmin?: boolean;
 }
 
 const adminUserSchema = new Schema<IAdminUser>(
@@ -36,6 +37,10 @@ const adminUserSchema = new Schema<IAdminUser>(
     },
     speciality: {
       type: String,
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
     },
   },
   {

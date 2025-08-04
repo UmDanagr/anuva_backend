@@ -25,6 +25,7 @@ export interface IUser {
   updatedAt: Date;
   isIntakeFormFilled?: boolean;
   insuranceProvider?: string;
+  isPatientInfoFormCompleted?: boolean;
 }
 
 export interface IIntakeForm {
@@ -155,7 +156,10 @@ export interface IStorage {
   upsertUser(
     user: Omit<IUser, "_id" | "createdAt" | "updatedAt">
   ): Promise<IUser>;
-  updateUser(id: string, updates: Partial<IUser>): Promise<IUser>;
+  updateUser(
+    id: mongoose.Types.ObjectId,
+    updates: Partial<IUser>
+  ): Promise<IUser>;
   getUsers(): Promise<IUser[]>;
 
   // Intake forms
@@ -323,7 +327,10 @@ export class MongoDBStorage implements IStorage {
     return user.toObject() as unknown as IUser;
   }
 
-  async updateUser(id: string, updates: Partial<IUser>): Promise<IUser> {
+  async updateUser(
+    id: mongoose.Types.ObjectId,
+    updates: Partial<IUser>
+  ): Promise<IUser> {
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!user) {
       throw new Error("User not found");

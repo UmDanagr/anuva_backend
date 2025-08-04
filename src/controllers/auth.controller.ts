@@ -258,7 +258,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
       });
     }
     function generatePatientId() {
-      return `PAT/${Math.floor(100000 + Math.random() * 900000).toString()}`;
+      return Math.floor(100000 + Math.random() * 900000).toString();
     }
     let patientId = generatePatientId();
     while (user?.patientId === patientId) {
@@ -281,7 +281,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
       newUser.email,
       "Welcome to our app",
       `Welcome to our app. Your patient ID is ${newUser.patientId}. Please use this ID to login to your account.
-      <a href="http://localhost:3000/reset-password">Reset Password</a>`
+      <a href="http://localhost:5173/create-password">Reset Password</a>`
     );
     return res.status(201).json({
       status: true,
@@ -311,7 +311,7 @@ export const reset_password_controller = async (
       });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
-    await storage.updateUser(user._id.toString(), { password: hashedPassword });
+    await storage.updateUser(user?._id, { password: hashedPassword });
     return res.status(200).json({
       status: true,
       message: "Password reset successfully",

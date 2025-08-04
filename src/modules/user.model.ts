@@ -11,6 +11,7 @@ export interface IUser extends Document {
   profileImageUrl?: string;
   insuranceProvider?: string;
   isIntakeFormFilled?: boolean;
+  isPatientInfoFormCompleted?: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -47,6 +48,10 @@ const userSchema = new Schema<IUser>(
       type: String,
     },
     isIntakeFormFilled: {
+      type: Boolean,
+      default: false,
+    },
+    isPatientInfoFormCompleted: {
       type: Boolean,
       default: false,
     },

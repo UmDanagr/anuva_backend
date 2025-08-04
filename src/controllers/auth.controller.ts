@@ -101,17 +101,6 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
-export const logout = async (req: Request, res: Response) => {
-  res.cookie("jwt", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    expires: new Date(0),
-  });
-  res.status(200).json({
-    status: true,
-    message: "Logged out successfully",
-  });
-};
 
 export const getUser = async (req: Request, res: Response) => {
   try {
@@ -268,10 +257,14 @@ export const create_user_controller = async (req: Request, res: Response) => {
         message: "User with this email already exists",
       });
     }
-    const patientId = `PAT${Math.floor(
-      100000 + Math.random() * 900000
-    ).toString()}`;
-    const password = await bcrypt.hash(userData.password, 12);
+    function generatePatientId() {
+      return `PAT/${Math.floor(100000 + Math.random() * 900000).toString()}`;
+    }
+    let patientId = generatePatientId();
+    while (user?.patientId === patientId) {
+      patientId = generatePatientId();
+    }
+
     const newUser = await storage.createUser({
       patientId,
       email: userData.email,
@@ -279,16 +272,16 @@ export const create_user_controller = async (req: Request, res: Response) => {
       lastName: userData.lastName,
       dateOfBirth: userData.dateOfBirth,
       phoneNumber: userData.phoneNumber,
-      password,
       profileImageUrl: null,
       insuranceProvider: userData.insuranceProvider,
+      password: null,
     });
 
     await sendEmail(
       newUser.email,
       "Welcome to our app",
       `Welcome to our app. Your patient ID is ${newUser.patientId}. Please use this ID to login to your account.
-      <a href="http://localhost:3000/login">Login</a>`
+      <a href="http://localhost:3000/reset-password">Reset Password</a>`
     );
     return res.status(201).json({
       status: true,
@@ -299,7 +292,35 @@ export const create_user_controller = async (req: Request, res: Response) => {
     console.log("Create user error:", error);
     return res.status(400).json({
       status: false,
-      message: "Invalid user data",
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const reset_password_controller = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { patientId, password } = req.body;
+    const user = await storage.getUserByPatientId(patientId);
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found",
+      });
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    await storage.updateUser(user._id.toString(), { password: hashedPassword });
+    return res.status(200).json({
+      status: true,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.log("Reset password error:", error);
+    return res.status(400).json({
+      status: false,
+      message: "Something went wrong",
     });
   }
 };

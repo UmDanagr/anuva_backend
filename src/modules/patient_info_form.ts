@@ -20,7 +20,7 @@ const patientInfoFormSchema = new mongoose.Schema(
     employer: { type: String, required: true },
     employerAddress: { type: String, required: true },
     enrolledInSchool: { type: Boolean, required: true },
-    school: { type: String, required: true },
+    school: { type: String, required: false },
   },
   {
     timestamps: true,

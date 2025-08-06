@@ -17,6 +17,8 @@ export interface IUser extends Document {
   isIntakeFormFilled?: boolean;
   isPatientInfoFormCompleted?: boolean;
   isInjuryFormCompleted?: boolean;
+  isSymptomChecklistFormCompleted?: boolean;
+  isAdditionalSymptomFormCompleted?: boolean;
   decryptFieldsSync: () => void;
 }
 
@@ -63,6 +65,14 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
     isInjuryFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isSymptomChecklistFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isAdditionalSymptomFormCompleted: {
       type: Boolean,
       default: false,
     },

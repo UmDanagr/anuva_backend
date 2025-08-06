@@ -20,7 +20,7 @@ export const is_logged_in = async (
 
     const user = await userModel.findById(decoded.userId);
     if (!user) {
-      return res.status(401).json({ error: "User not found" });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
     res.locals.user = user;
     next();
@@ -40,13 +40,11 @@ export const is_admin_logged_in = async (
   }
 
   const token = authHeader.split(" ")[1];
-  console.log(token);
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await adminUserModel.findById(decoded.userId);
-    console.log(user);
     if (!user) {
-      return res.status(401).json({ error: "User not found" });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
     res.locals.admin_user = user;
     next();

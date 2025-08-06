@@ -26,6 +26,8 @@ export interface IUser {
   isIntakeFormFilled?: boolean;
   insuranceProvider?: string;
   isPatientInfoFormCompleted?: boolean;
+  isInjuryFormCompleted?: boolean;
+  getDecryptedData: () => Record<string, any>;
 }
 
 export interface IIntakeForm {
@@ -141,6 +143,7 @@ export interface IAdminUser {
   speciality?: string;
   password?: string;
   profileImageUrl?: string;
+  isAdmin?: boolean;
 }
 
 export interface IStorage {
@@ -242,6 +245,9 @@ export class MongoDBStorage implements IStorage {
   async getUser(id: string): Promise<IUser | undefined> {
     try {
       const user = await User.findById(id);
+      if (user) {
+        user.decryptFieldsSync();
+      }
       return user?.toObject() as unknown as IUser | undefined;
     } catch (error) {
       console.error("Error getting user:", error);
@@ -252,17 +258,26 @@ export class MongoDBStorage implements IStorage {
   async getUserByPatientId(patientId: string): Promise<IUser | undefined> {
     try {
       const user = await User.findOne({ patientId });
+      if (user) {
+        user.decryptFieldsSync();
+      }
       return user?.toObject() as unknown as IUser | undefined;
     } catch (error) {
-      console.error("Error getting user by patientId:", error);
+      console.error("Error getting user by patient ID:", error);
       return undefined;
     }
   }
 
   async getUserByEmail(email: string): Promise<IUser | undefined> {
     try {
-      const user = await User.findOne({ email });
-      return user?.toObject() as unknown as IUser | undefined;
+      const users = await User.find();
+      for (const user of users) {
+        user.decryptFieldsSync();
+        if (user.email === email) {
+          return user.toObject() as unknown as IUser;
+        }
+      }
+      return undefined;
     } catch (error) {
       console.error("Error getting user by email:", error);
       return undefined;
@@ -271,8 +286,14 @@ export class MongoDBStorage implements IStorage {
 
   async getAdminUserByEmail(email: string): Promise<IAdminUser | undefined> {
     try {
-      const user = await adminUsers.findOne({ email });
-      return user?.toObject() as unknown as IAdminUser | undefined;
+      const users = await adminUsers.find();
+      for (const user of users) {
+        user.decryptFieldsSync();
+        if (user.email === email) {
+          return user.toObject() as unknown as IAdminUser;
+        }
+      }
+      return undefined;
     } catch (error) {
       console.error("Error getting admin user by email:", error);
       return undefined;
@@ -292,8 +313,14 @@ export class MongoDBStorage implements IStorage {
     userName: string
   ): Promise<IAdminUser | undefined> {
     try {
-      const user = await adminUsers.findOne({ userName });
-      return user?.toObject() as unknown as IAdminUser | undefined;
+      const users = await adminUsers.find();
+      for (const user of users) {
+        user.decryptFieldsSync();
+        if (user.userName === userName) {
+          return user.toObject() as unknown as IAdminUser;
+        }
+      }
+      return undefined;
     } catch (error) {
       console.error("Error getting user by email:", error);
       return undefined;
@@ -340,6 +367,9 @@ export class MongoDBStorage implements IStorage {
 
   async getUsers(): Promise<IUser[]> {
     const users = await User.find();
+    users.forEach((user) => {
+      user.decryptFieldsSync();
+    });
     return users.map((user) => user.toObject() as unknown as IUser);
   }
 

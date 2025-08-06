@@ -8,16 +8,30 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD, // Use app password instead of regular password
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
-export const sendEmail = async (to: string, subject: string, text: string) => {
+export const sendEmail = async (
+  to: string,
+  subject: string,
+  htmlOrText: string
+) => {
+  if (!to) {
+    console.error("❌ Email recipient is missing!");
+    throw new Error("Recipient email address is required");
+  }
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
     subject,
-    text,
+    html: htmlOrText,
   };
-  await transporter.sendMail(mailOptions);
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    throw err;
+  }
 };

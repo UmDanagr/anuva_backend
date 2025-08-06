@@ -1,8 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
-import encrypt from "mongoose-encryption";
+import { fieldEncryption } from "mongoose-field-encryption";
 import dotenv from "dotenv";
 
-// Load environment variables
 dotenv.config();
 
 export interface IUser extends Document {
@@ -17,6 +16,8 @@ export interface IUser extends Document {
   insuranceProvider?: string;
   isIntakeFormFilled?: boolean;
   isPatientInfoFormCompleted?: boolean;
+  isInjuryFormCompleted?: boolean;
+  decryptFieldsSync: () => void;
 }
 
 const userSchema = new Schema<IUser>(
@@ -48,6 +49,7 @@ const userSchema = new Schema<IUser>(
     },
     profileImageUrl: {
       type: String,
+      default: null,
     },
     insuranceProvider: {
       type: String,
@@ -60,19 +62,52 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    isInjuryFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Use a hardcoded encryption key since environment variables are not working
-const encryptionKey = "ThisIsATemporaryEncryptionKeyForDevelopment12345";
+const encryptionKey = process.env.ENCRYPTION_SECRET;
 
-userSchema.plugin(encrypt, {
+userSchema.plugin(fieldEncryption, {
+  fields: [
+    "email",
+    "phoneNumber",
+    "dateOfBirth",
+    "firstName",
+    "lastName",
+    "profileImageUrl",
+    "insuranceProvider",
+  ],
   secret: encryptionKey,
-  encryptedFields: ["email", "phoneNumber", "dateOfBirth"],
-  requireAuthenticationCode: false,
+  saltGenerator: () => "1234567890abcdef",
 });
+
+userSchema.methods.getDecryptedData = function () {
+  try {
+    this.decryptFieldsSync();
+    return {
+      patientId: this.patientId,
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      dateOfBirth: this.dateOfBirth,
+      phoneNumber: this.phoneNumber,
+      profileImageUrl: this.profileImageUrl,
+      insuranceProvider: this.insuranceProvider,
+      isIntakeFormFilled: this.isIntakeFormFilled,
+      isPatientInfoFormCompleted: this.isPatientInfoFormCompleted,
+      isInjuryFormCompleted: this.isInjuryFormCompleted,
+    };
+  } catch (error) {
+    console.error("Decryption error:", error);
+    throw new Error("Failed to decrypt user data");
+  }
+};
 
 export default mongoose.model<IUser>("User", userSchema);

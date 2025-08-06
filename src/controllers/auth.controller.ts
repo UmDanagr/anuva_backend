@@ -10,6 +10,7 @@ import {
 } from "../validations/user.validation.js";
 import { storage } from "../storage.js";
 import { sendEmail } from "../services/email_service.js";
+import User from "../modules/user.model.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -19,16 +20,14 @@ export const signup = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(400).json({
         status: false,
-        message: "User with this email already exists",
+        message: "User with this email already exists...🚨",
       });
     }
 
     const password = await bcrypt.hash(userData.password, 12);
-    const patientId = `PAT${Math.floor(
-      100000 + Math.random() * 900000
-    ).toString()}`;
+    const patientId = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const user = await storage.createUser({
+    const user = new User({
       patientId,
       email: userData.email,
       firstName: userData.firstName,
@@ -38,6 +37,11 @@ export const signup = async (req: Request, res: Response) => {
       password,
       profileImageUrl: null,
     });
+
+    await user.save();
+
+    user.decryptFieldsSync();
+
     const token = generateToken(res, user._id as Types.ObjectId);
     await sendEmail(
       user.email,
@@ -47,7 +51,7 @@ export const signup = async (req: Request, res: Response) => {
     );
     return res.status(201).json({
       status: "success",
-      message: "Account created successfully",
+      message: "Account created successfully...🎉",
       user: {
         id: user._id,
         email: user.email,
@@ -57,10 +61,9 @@ export const signup = async (req: Request, res: Response) => {
       token,
     });
   } catch (error) {
-    console.error("Signup error:", error);
     return res.status(400).json({
       status: false,
-      message: "Invalid signup data",
+      message: "Invalid signup data...🚨",
     });
   }
 };
@@ -73,7 +76,7 @@ export const login = async (req: Request, res: Response) => {
     if (!user || !user.password) {
       return res.status(401).json({
         status: false,
-        message: "Invalid patientId or password",
+        message: "Invalid patientId or password...🚨",
       });
     }
 
@@ -81,7 +84,7 @@ export const login = async (req: Request, res: Response) => {
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
-        message: "Invalid patientId or password",
+        message: "Invalid patientId or password...🚨",
       });
     }
 
@@ -89,15 +92,14 @@ export const login = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       status: true,
-      message: "Login successful",
+      message: "Login successfully...🎉",
       user,
       token,
     });
   } catch (error) {
-    console.log("Login error:", error);
     return res.status(400).json({
       status: false,
-      message: "Invalid login data",
+      message: "Invalid login data...🚨",
     });
   }
 };
@@ -107,7 +109,7 @@ export const getUser = async (req: Request, res: Response) => {
     if (!res.locals.user) {
       return res.status(401).json({
         status: false,
-        message: "Not authenticated",
+        message: "Not authenticated...🚨",
       });
     }
 
@@ -115,19 +117,19 @@ export const getUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({
         status: false,
-        message: "Not authenticated",
+        message: "Not authenticated...🚨",
       });
     }
 
     return res.status(200).json({
       status: true,
-      message: "User fetched successfully",
+      message: "User fetched successfully...🎉",
       user,
     });
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Failed to get user",
+      message: "Failed to get user...🚨",
     });
   }
 };
@@ -139,7 +141,7 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(400).json({
         status: false,
-        message: "User with this email already exists",
+        message: "User with this email already exists...🚨",
       });
     }
     const password = await bcrypt.hash(userData.password, 12);
@@ -150,20 +152,20 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
       phoneNumber: userData.phoneNumber,
       password,
       profileImageUrl: null,
+      isAdmin: true,
     });
 
     const token = generateToken(res, user._id as Types.ObjectId);
     return res.status(201).json({
       status: true,
-      message: "Account created successfully",
+      message: "Account created successfully...🎉",
       user,
       token,
     });
   } catch (error) {
-    console.log("Admin signup error:", error);
     return res.status(400).json({
       status: false,
-      message: "Invalid signup data",
+      message: "Invalid signup data...🚨",
     });
   }
 };
@@ -175,28 +177,27 @@ export const admin_login_controller = async (req: Request, res: Response) => {
     if (!user || !user.password) {
       return res.status(401).json({
         status: false,
-        message: "Invalid username or password",
+        message: "Invalid username or password...🚨",
       });
     }
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
-        message: "Invalid username or password",
+        message: "Invalid username or password...🚨",
       });
     }
     const token = generateToken(res, user._id as Types.ObjectId);
     return res.status(200).json({
       status: true,
-      message: "Login successful",
+      message: "Login successfully...🎉",
       user,
       token,
     });
   } catch (error) {
-    console.log("Admin login error:", error);
     return res.status(400).json({
       status: false,
-      message: "Invalid login data",
+      message: "Invalid login data...🚨",
     });
   }
 };
@@ -209,23 +210,21 @@ export const get_admin_users_controller = async (
     const user = await storage.getAdminUserByUsername(
       res.locals.admin_user.userName as string
     );
-    console.log(user);
     if (!user) {
       return res.status(404).json({
         status: false,
-        message: "No users found",
+        message: "No users found...🚨",
       });
     }
     return res.status(200).json({
       status: true,
-      message: "Users fetched successfully",
+      message: "Users fetched successfully...🎉",
       user,
     });
   } catch (error) {
-    console.log("Get admin users error:", error);
     return res.status(500).json({
       status: false,
-      message: "Failed to get admin users",
+      message: "Failed to get admin users...🚨",
     });
   }
 };
@@ -233,16 +232,16 @@ export const get_admin_users_controller = async (
 export const get_all_users_controller = async (req: Request, res: Response) => {
   try {
     const users = await storage.getUsers();
+
     return res.status(200).json({
       status: true,
-      message: "User fetched successfully",
-      users,
+      message: "Users fetched successfully...🎉",
+      users: users,
     });
   } catch (error) {
-    console.log("Get all users error:", error);
     return res.status(500).json({
       status: false,
-      message: "Failed to get all users",
+      message: "Failed to get all users...🚨",
     });
   }
 };
@@ -254,7 +253,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
     if (user) {
       return res.status(400).json({
         status: false,
-        message: "User with this email already exists",
+        message: "User with this email already exists...🚨",
       });
     }
     function generatePatientId() {
@@ -265,7 +264,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
       patientId = generatePatientId();
     }
 
-    const newUser = await storage.createUser({
+    const newUser = new User({
       patientId,
       email: userData.email,
       firstName: userData.firstName,
@@ -277,6 +276,10 @@ export const create_user_controller = async (req: Request, res: Response) => {
       password: null,
     });
 
+    await newUser.save();
+
+    newUser.decryptFieldsSync();
+
     await sendEmail(
       newUser.email,
       "Welcome to our app",
@@ -285,14 +288,13 @@ export const create_user_controller = async (req: Request, res: Response) => {
     );
     return res.status(201).json({
       status: true,
-      message: "User created successfully",
+      message: "User created successfully...🎉",
       user: newUser,
     });
   } catch (error) {
-    console.log("Create user error:", error);
     return res.status(400).json({
       status: false,
-      message: "Something went wrong",
+      message: "Something went wrong...🚨",
     });
   }
 };
@@ -307,20 +309,19 @@ export const reset_password_controller = async (
     if (!user) {
       return res.status(404).json({
         status: false,
-        message: "User not found",
+        message: "User not found...🚨",
       });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
     await storage.updateUser(user?._id, { password: hashedPassword });
     return res.status(200).json({
       status: true,
-      message: "Password reset successfully",
+      message: "Password reset successfully...🎉",
     });
   } catch (error) {
-    console.log("Reset password error:", error);
     return res.status(400).json({
       status: false,
-      message: "Something went wrong",
+      message: "Something went wrong...🚨",
     });
   }
 };

@@ -11,6 +11,7 @@ import {
 import { storage } from "../storage.js";
 import { sendEmail } from "../services/email_service.js";
 import User from "../modules/user.model.js";
+import { Otp } from "../modules/otp.model.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -88,13 +89,23 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const token = generateToken(res, user._id as Types.ObjectId);
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    await Otp.create({
+      userId: user._id,
+      email: user.email,
+      otp,
+    });
+
+    await sendEmail(
+      user.email,
+      "One Time Password",
+      `Your one time password is ${otp}`
+    );
 
     return res.status(200).json({
       status: true,
-      message: "Login successfully...🎉",
-      user,
-      token,
+      message: "OTP sent successfully...🎉",
     });
   } catch (error) {
     return res.status(400).json({

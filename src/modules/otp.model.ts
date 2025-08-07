@@ -7,6 +7,10 @@ const otpSchema = new Schema(
       ref: "User",
       required: true,
     },
+    patientId: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,

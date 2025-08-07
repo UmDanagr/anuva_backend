@@ -93,6 +93,7 @@ export const login = async (req: Request, res: Response) => {
 
     await Otp.create({
       userId: user._id,
+      patientId: user.patientId,
       email: user.email,
       otp,
     });
@@ -333,6 +334,32 @@ export const reset_password_controller = async (
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",
+    });
+  }
+};
+
+export const verify_otp_controller = async (req: Request, res: Response) => {
+  try {
+    const { patientId, otp } = req.body;
+    const otpDocument = await Otp.findOne({ patientId, otp });
+
+    if (!otpDocument) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid otp...🚨",
+      });
+    }
+
+    const token = generateToken(res, otpDocument.userId as Types.ObjectId);
+    return res.status(200).json({
+      status: true,
+      message: "OTP verified successfully...🎉",
+      token,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      status: false,
+      message: "Invalid otp...🚨",
     });
   }
 };

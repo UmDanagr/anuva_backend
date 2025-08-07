@@ -107,6 +107,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json({
       status: true,
       message: "OTP sent successfully...🎉",
+      user,
     });
   } catch (error) {
     return res.status(400).json({
@@ -278,6 +279,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
 
     const newUser = new User({
       patientId,
+      adminId: res.locals.admin_user._id,
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
@@ -296,7 +298,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
       newUser.email,
       "Welcome to our app",
       `Welcome to our app. Your patient ID is ${newUser.patientId}. Please use this ID to login to your account.
-      <a href="http://localhost:5173/create-password">Reset Password</a>`
+      <a href="http://localhost:5173/create-password">Create Password</a>`
     );
     return res.status(201).json({
       status: true,
@@ -304,6 +306,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
       user: newUser,
     });
   } catch (error) {
+    console.log(error);
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",

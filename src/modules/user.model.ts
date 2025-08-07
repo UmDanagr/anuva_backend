@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 import { fieldEncryption } from "mongoose-field-encryption";
 import dotenv from "dotenv";
 
@@ -19,6 +19,8 @@ export interface IUser extends Document {
   isInjuryFormCompleted?: boolean;
   isSymptomChecklistFormCompleted?: boolean;
   isAdditionalSymptomFormCompleted?: boolean;
+  injuryId?: string;
+  adminId: Types.ObjectId;
   decryptFieldsSync: () => void;
 }
 
@@ -54,6 +56,13 @@ const userSchema = new Schema<IUser>(
       default: null,
     },
     insuranceProvider: {
+      type: String,
+    },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "adminUsers",
+    },
+    injuryId: {
       type: String,
     },
     isIntakeFormFilled: {
@@ -113,6 +122,8 @@ userSchema.methods.getDecryptedData = function () {
       isIntakeFormFilled: this.isIntakeFormFilled,
       isPatientInfoFormCompleted: this.isPatientInfoFormCompleted,
       isInjuryFormCompleted: this.isInjuryFormCompleted,
+      injuryId: this.injuryId,
+      adminId: this.adminId,
     };
   } catch (error) {
     console.error("Decryption error:", error);

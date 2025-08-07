@@ -29,6 +29,7 @@ export interface IUser {
   isInjuryFormCompleted?: boolean;
   isSymptomChecklistFormCompleted?: boolean;
   isAdditionalSymptomFormCompleted?: boolean;
+  injuryId?: string;
   getDecryptedData: () => Record<string, any>;
 }
 

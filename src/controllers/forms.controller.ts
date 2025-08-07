@@ -73,6 +73,7 @@ export const createInjuryForm_controller = async (
     injuryForm.decryptFieldsSync();
 
     await storage.updateUser(userId, {
+      isInjuryFormCompleted: true,
       injuryId: injuryId.toString(),
     });
     return res.status(200).json({

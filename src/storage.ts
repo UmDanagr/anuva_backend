@@ -361,11 +361,7 @@ export class MongoDBStorage implements IStorage {
     id: mongoose.Types.ObjectId,
     updates: Partial<IUser>
   ): Promise<IUser> {
-    const user = await User.findByIdAndUpdate(
-      id,
-      { updates, isInjuryFormCompleted: true },
-      { new: true }
-    );
+    const user = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!user) {
       throw new Error("User not found");
     }

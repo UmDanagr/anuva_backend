@@ -3,6 +3,7 @@ import { storage } from "../storage.js";
 import patientInfoFormModel from "../modules/patient_info_form.js";
 import userModel from "../modules/user.model.js";
 import injuryModel from "../modules/injury.model.js";
+import { createPatientInfoFormSchema } from "../validations/form.validations.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -19,8 +20,10 @@ export const createPatientInfoForm_controller = async (
       });
     }
 
+    const patientInfoFormData = createPatientInfoFormSchema.parse(req.body);
+
     const patientInfoForm = new patientInfoFormModel({
-      ...req.body,
+      ...patientInfoFormData,
       userId,
       patientId: res.locals.user.patientId,
       adminId: res.locals.user.adminId,
@@ -42,6 +45,8 @@ export const createPatientInfoForm_controller = async (
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
     });
   }
 };

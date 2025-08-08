@@ -64,7 +64,7 @@ export const signup = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       status: false,
-      message: "Invalid signup data...🚨",
+      message: "something went wrong...🚨",
     });
   }
 };
@@ -77,7 +77,7 @@ export const login = async (req: Request, res: Response) => {
     if (!user || !user.password) {
       return res.status(401).json({
         status: false,
-        message: "Invalid patientId or password...🚨",
+        message: "patientId or password is incorrect...🚨",
       });
     }
 
@@ -85,7 +85,7 @@ export const login = async (req: Request, res: Response) => {
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
-        message: "Invalid patientId or password...🚨",
+        message: "patientId or password is incorrect...🚨",
       });
     }
 
@@ -112,7 +112,8 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       status: false,
-      message: "Invalid login data...🚨",
+      message: "something went wrong...🚨",
+      error: error?.errors,
     });
   }
 };
@@ -154,7 +155,7 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(400).json({
         status: false,
-        message: "User with this email already exists...🚨",
+        message: "user with this email already exists...🚨",
       });
     }
     const password = await bcrypt.hash(userData.password, 12);
@@ -178,7 +179,7 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       status: false,
-      message: "Invalid signup data...🚨",
+      message: "something went wrong...🚨",
     });
   }
 };
@@ -190,14 +191,14 @@ export const admin_login_controller = async (req: Request, res: Response) => {
     if (!user || !user.password) {
       return res.status(401).json({
         status: false,
-        message: "Invalid username or password...🚨",
+        message: "username or password is incorrect...🚨",
       });
     }
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({
         status: false,
-        message: "Invalid username or password...🚨",
+        message: "username or password is incorrect...🚨",
       });
     }
     const token = generateToken(res, user._id as Types.ObjectId);
@@ -210,7 +211,7 @@ export const admin_login_controller = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({
       status: false,
-      message: "Invalid login data...🚨",
+      message: "something went wrong...🚨",
     });
   }
 };
@@ -226,7 +227,7 @@ export const get_admin_users_controller = async (
     if (!user) {
       return res.status(404).json({
         status: false,
-        message: "No users found...🚨",
+        message: "no users found...🚨",
       });
     }
     return res.status(200).json({
@@ -254,7 +255,8 @@ export const get_all_users_controller = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Failed to get all users...🚨",
+      message: "something went wrong...🚨",
+      error: error,
     });
   }
 };
@@ -266,7 +268,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
     if (user) {
       return res.status(400).json({
         status: false,
-        message: "User with this email already exists...🚨",
+        message: "user with this email already exists...🚨",
       });
     }
     function generatePatientId() {
@@ -309,6 +311,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",
+      error: error,
     });
   }
 };
@@ -348,7 +351,7 @@ export const verify_otp_controller = async (req: Request, res: Response) => {
     if (!otpDocument) {
       return res.status(400).json({
         status: false,
-        message: "Invalid otp...🚨",
+        message: "otp is incorrect...🚨",
       });
     }
 
@@ -362,6 +365,42 @@ export const verify_otp_controller = async (req: Request, res: Response) => {
     return res.status(400).json({
       status: false,
       message: "Invalid otp...🚨",
+    });
+  }
+};
+
+export const resend_otp_controller = async (req: Request, res: Response) => {
+  try {
+    const { patientId } = req.body;
+    const user = await storage.getUserByPatientId(patientId);
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found...🚨",
+      });
+    }
+    console.log(user);
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    await Otp.create({
+      userId: user._id,
+      patientId: user.patientId,
+      email: user.email,
+      otp,
+    });
+    await sendEmail(
+      user.email,
+      "One Time Password",
+      `Your one time password is ${otp}`
+    );
+    return res.status(200).json({
+      status: true,
+      message: "OTP resent successfully...🎉",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      status: false,
+      message: "something went wrong...🚨",
+      error: error,
     });
   }
 };

@@ -3,6 +3,8 @@ import { fieldEncryption } from "mongoose-field-encryption";
 
 export interface SymptomChecklist extends Document {
   symptomChecklistId: string;
+  userId: mongoose.Types.ObjectId;
+  adminId: mongoose.Types.ObjectId;
   patientId: string;
   injuryId: string;
   headache: number;
@@ -37,6 +39,8 @@ export interface SymptomChecklist extends Document {
 const symptomChecklistSchema = new mongoose.Schema(
   {
     symptomChecklistId: { type: String, required: true, unique: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    adminId: { type: mongoose.Schema.Types.ObjectId, required: true },
     patientId: { type: String, required: true },
     injuryId: { type: String, required: true },
     headache: { type: Number, default: 0 },
@@ -108,6 +112,11 @@ symptomChecklistSchema.plugin(fieldEncryption, {
 symptomChecklistSchema.methods.getDecryptedData = function () {
   this.decryptFieldsSync();
   return {
+    symptomChecklistId: this.symptomChecklistId,
+    userId: this.userId,
+    adminId: this.adminId,
+    patientId: this.patientId,
+    injuryId: this.injuryId,
     headache: this.headache,
     pressureInHead: this.pressureInHead,
     neckPain: this.neckPain,

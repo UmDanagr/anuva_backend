@@ -120,11 +120,6 @@ export const createSymptomChecklistForm_controller = async (
 
     const userId = res.locals.user._id;
     const adminId = res.locals.user.adminId;
-
-    if (!userId || !adminId) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-
     const symptomChecklistId = Math.floor(100000 + Math.random() * 900000 + 1);
     const patientId = res.locals.user.patientId;
     const injuryId = res.locals.user.injuryId;

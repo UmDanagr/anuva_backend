@@ -74,9 +74,7 @@ export const login = async (req: Request, res: Response) => {
     const { patientId, password } = loginSchema.parse(req.body);
 
     const user = await storage.getUserByPatientId(patientId);
-    console.log(user);
     if (!user || !user.password) {
-      console.log("Invalid patientId or password...🚨 111111111");
       return res.status(401).json({
         status: false,
         message: "Invalid patientId or password...🚨",
@@ -84,9 +82,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log(isValidPassword);
     if (!isValidPassword) {
-      console.log("Invalid patientId or password...🚨 222222222");
       return res.status(401).json({
         status: false,
         message: "Invalid patientId or password...🚨",
@@ -114,7 +110,6 @@ export const login = async (req: Request, res: Response) => {
       patientId: user.patientId,
     });
   } catch (error) {
-    console.log(error);
     return res.status(400).json({
       status: false,
       message: "Invalid login data...🚨",
@@ -311,7 +306,6 @@ export const create_user_controller = async (req: Request, res: Response) => {
       user: newUser,
     });
   } catch (error) {
-    console.log(error);
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",

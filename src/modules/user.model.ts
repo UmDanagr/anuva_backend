@@ -122,6 +122,7 @@ userSchema.methods.getDecryptedData = function () {
       isIntakeFormFilled: this.isIntakeFormFilled,
       isPatientInfoFormCompleted: this.isPatientInfoFormCompleted,
       isInjuryFormCompleted: this.isInjuryFormCompleted,
+      isSymptomChecklistFormCompleted: this.isSymptomChecklistFormCompleted,
       injuryId: this.injuryId,
       adminId: this.adminId,
     };

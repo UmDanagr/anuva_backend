@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const createPatientInfoFormSchema = z.object({
   fullName: z.string().min(2).optional(),
-  dateOfExamination: z.date().optional(),
+  dateOfExamination: z.string().optional(),
   race: z.string().optional(),
   maritalStatus: z
     .enum(["single", "married", "divorced", "widowed"])
@@ -16,4 +16,56 @@ export const createPatientInfoFormSchema = z.object({
   employerAddress: z.string().optional(),
   enrolledInSchool: z.boolean().optional(),
   school: z.string().optional(),
+});
+
+export const createInjuryFormSchema = z.object({
+  dateOfInjury: z.string().optional(),
+  sportOrActivity: z.string().optional(),
+  setting: z.enum(["game", "practice", "other"]).optional(),
+  settingDetails: z.string().optional(),
+  position: z.string().optional(),
+  injuryDescription: z.string().optional(),
+  impactType: z.string().optional(),
+  impactDetails: z.string().optional(),
+  locationOfContact: z.string().optional(),
+  looseOfConsciousness: z.boolean().optional(),
+  LOCduration: z.string().optional(),
+  troubleRemembering: z.boolean().optional(),
+  memoryTroubleDuration: z.string().optional(),
+  feelFocussed: z.boolean().optional(),
+  confusionDuration: z.string().optional(),
+  stoppedParticipation: z.boolean().optional(),
+  stopDuration: z.string().optional(),
+  returnToParticipation: z.boolean().optional(),
+  returnDuration: z.string().optional(),
+  emergencyRoomVisit: z.boolean().optional(),
+  ERdetails: z.string().optional(),
+  testPerformed: z.boolean().optional(),
+});
+
+export const createSymptomChecklistSchema = z.object({
+  headache: z.number().min(0).max(6).optional(),
+  pressureInHead: z.number().min(0).max(6).optional(),
+  neckPain: z.number().min(0).max(6).optional(),
+  troubleFallingAsleep: z.number().min(0).max(6).optional(),
+  drowsiness: z.number().min(0).max(6).optional(),
+  nauseaOrVomiting: z.number().min(0).max(6).optional(),
+  fatigueOrLowEnergy: z.number().min(0).max(6).optional(),
+  dizziness: z.number().min(0).max(6).optional(),
+  blurredVision: z.number().min(0).max(6).optional(),
+  balanceProblems: z.number().min(0).max(6).optional(),
+  sensitivityToLight: z.number().min(0).max(6).optional(),
+  sensitivityToNoise: z.number().min(0).max(6).optional(),
+  feelingSlowedDown: z.number().min(0).max(6).optional(),
+  feelingInAFog: z.number().min(0).max(6).optional(),
+  dontFeelRight: z.number().min(0).max(6).optional(),
+  difficultyConcentrating: z.number().min(0).max(6).optional(),
+  difficultyRemembering: z.number().min(0).max(6).optional(),
+  confusion: z.number().min(0).max(6).optional(),
+  moreEmotional: z.number().min(0).max(6).optional(),
+  irritability: z.number().min(0).max(6).optional(),
+  sadnessOrDepression: z.number().min(0).max(6).optional(),
+  nervousOrAnxious: z.number().min(0).max(6).optional(),
+  worseWithPhysicalActivity: z.boolean().optional(),
+  worseWithSocialSituations: z.boolean().optional(),
 });

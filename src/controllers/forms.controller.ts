@@ -3,7 +3,12 @@ import { storage } from "../storage.js";
 import patientInfoFormModel from "../modules/patient_info_form.js";
 import userModel from "../modules/user.model.js";
 import injuryModel from "../modules/injury.model.js";
-import { createPatientInfoFormSchema } from "../validations/form.validations.js";
+import {
+  createInjuryFormSchema,
+  createPatientInfoFormSchema,
+  createSymptomChecklistSchema,
+} from "../validations/form.validations.js";
+import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -64,10 +69,11 @@ export const createInjuryForm_controller = async (
         message: "Injury form already exists",
       });
     }
+    const injuryFormData = createInjuryFormSchema.parse(req.body);
 
     const injuryId = Math.floor(100000 + Math.random() * 900000 + 1);
     const injuryForm = new injuryModel({
-      ...req.body,
+      ...injuryFormData,
       userId,
       patientId: res.locals.user.patientId,
       injuryId,
@@ -91,6 +97,106 @@ export const createInjuryForm_controller = async (
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+};
+
+export const createSymptomChecklistForm_controller = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const validatedData = createSymptomChecklistSchema.parse(req.body);
+
+    const existform = await userModel.findById(res.locals.user._id);
+    if (existform?.isSymptomChecklistFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Symptom checklist form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+
+    if (!userId || !adminId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const symptomChecklistId = Math.floor(100000 + Math.random() * 900000 + 1);
+    const patientId = res.locals.user.patientId;
+    const injuryId = res.locals.user.injuryId;
+
+    const symptomFields = [
+      "headache",
+      "pressureInHead",
+      "neckPain",
+      "troubleFallingAsleep",
+      "drowsiness",
+      "nauseaOrVomiting",
+      "fatigueOrLowEnergy",
+      "dizziness",
+      "blurredVision",
+      "balanceProblems",
+      "sensitivityToLight",
+      "sensitivityToNoise",
+      "feelingSlowedDown",
+      "feelingInAFog",
+      "dontFeelRight",
+      "difficultyConcentrating",
+      "difficultyRemembering",
+      "confusion",
+      "moreEmotional",
+      "irritability",
+      "sadnessOrDepression",
+      "nervousOrAnxious",
+    ];
+
+    let totalSymptoms = 0;
+    let symptomSeverityScore = 0;
+
+    symptomFields.forEach((field) => {
+      const value = validatedData[
+        field as keyof typeof validatedData
+      ] as number;
+      if (value && value > 0) {
+        totalSymptoms++;
+        symptomSeverityScore += value;
+      }
+    });
+
+    const symptomChecklistData = {
+      symptomChecklistId,
+      patientId,
+      injuryId,
+      userId,
+      adminId,
+      ...validatedData,
+      totalSymptoms,
+      symptomSeverityScore,
+    };
+
+    const symptomChecklist = new symptom_checklistModel(symptomChecklistData);
+    await symptomChecklist.save();
+    symptomChecklist.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isSymptomChecklistFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Symptom checklist created successfully...🎉",
+      symptomChecklist,
+    });
+  } catch (error: any) {
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
     });
   }
 };

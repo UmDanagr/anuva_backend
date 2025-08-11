@@ -35,7 +35,7 @@ const bodyPainSchema = new mongoose.Schema<IBodyPain>({
   relievedBy: { type: String },
   progression: {
     type: String,
-    enum: ["Better", "Same", "Worse"],
+    enum: ["better", "same", "worse"],
   },
 });
 

@@ -59,7 +59,7 @@ const sleepDisturbanceSchema = new mongoose.Schema<ISleepDisturbance>({
   drowsinessSeverity: { type: Number, default: 0 },
   drowsinessProgression: {
     type: String,
-    enum: ["Better", "Same", "Worse"],
+    enum: ["better", "same", "worse"],
   },
   naps: { type: Boolean, default: false },
   numberOfNaps: { type: Number, default: 0 },

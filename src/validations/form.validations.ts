@@ -103,3 +103,21 @@ export const createAdditionalSymptomsFormSchema = z.object({
   totalSymptoms: z.number().min(0).max(6).optional(),
   symptomSeverityScore: z.number().min(0).max(6).optional(),
 });
+
+export const createHeadacheFormSchema = z.object({
+  ageOrDateOfOnset: z.string().optional(),
+  pastHeadacheProblems: z.boolean().optional(),
+  pastHeadacheDescription: z.string().optional(),
+  locationOfPain: z.string().optional(),
+  frequency: z.string().optional(),
+  painAtPresent: z.number().min(0).max(10).optional(),
+  painAtWorst: z.number().min(0).max(10).optional(),
+  qualityDescription: z.string().optional(),
+  timingDescription: z.string().optional(),
+  durationDescription: z.string().optional(),
+  triggersDescription: z.string().optional(),
+  associatedSymptoms: z.string().optional(),
+  reliefFactors: z.string().optional(),
+  daysMissingWorkOrSchool: z.string().optional(),
+  daysMissingSocialEvents: z.string().optional(),
+});

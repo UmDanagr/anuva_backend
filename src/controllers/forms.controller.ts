@@ -8,9 +8,11 @@ import {
   createInjuryFormSchema,
   createPatientInfoFormSchema,
   createSymptomChecklistSchema,
+  createHeadacheFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
+import headacheModel from "../modules/headache.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -291,6 +293,56 @@ export const createAdditionalSymptomsForm_controller = async (
       status: true,
       message: "Additional symptoms form created successfully...🎉",
       additionalSymptoms,
+    });
+  } catch (error: any) {
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+};
+
+export const headachForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createHeadacheFormSchema.parse(req.body);
+
+    const existform = await userModel.findById(res.locals.user._id);
+    if (existform?.isHeadacheFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Headache form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const headacheId = Math.floor(100000 + Math.random() * 900000 + 1);
+    const patientId = res.locals.user.patientId;
+    const injuryId = res.locals.user.injuryId;
+
+    const headacheData = {
+      headacheId,
+      patientId,
+      injuryId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const headache = new headacheModel(headacheData);
+    await headache.save();
+    headache.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isHeadacheFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Headache form created successfully...🎉",
+      headache,
     });
   } catch (error: any) {
     return res.status(400).send({

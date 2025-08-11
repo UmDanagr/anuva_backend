@@ -19,6 +19,10 @@ export interface IUser extends Document {
   isInjuryFormCompleted?: boolean;
   isSymptomChecklistFormCompleted?: boolean;
   isAdditionalSymptomFormCompleted?: boolean;
+  isHeadacheFormCompleted?: boolean;
+  isSleepDisturbanceFormCompleted?: boolean;
+  isBodyPainFormCompleted?: boolean;
+
   injuryId?: string;
   adminId: Types.ObjectId;
   decryptFieldsSync: () => void;
@@ -85,6 +89,18 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    isHeadacheFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isSleepDisturbanceFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isBodyPainFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -123,6 +139,10 @@ userSchema.methods.getDecryptedData = function () {
       isPatientInfoFormCompleted: this.isPatientInfoFormCompleted,
       isInjuryFormCompleted: this.isInjuryFormCompleted,
       isSymptomChecklistFormCompleted: this.isSymptomChecklistFormCompleted,
+      isAdditionalSymptomFormCompleted: this.isAdditionalSymptomFormCompleted,
+      isHeadacheFormCompleted: this.isHeadacheFormCompleted,
+      isSleepDisturbanceFormCompleted: this.isSleepDisturbanceFormCompleted,
+      isBodyPainFormCompleted: this.isBodyPainFormCompleted,
       injuryId: this.injuryId,
       adminId: this.adminId,
     };

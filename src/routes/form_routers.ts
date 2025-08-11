@@ -5,6 +5,7 @@ import {
   createPatientInfoForm_controller,
   createSymptomChecklistForm_controller,
   headachForm_controller,
+  sleepDisturbanceForm_controller,
 } from "../controllers/forms.controller.js";
 
 const router = Router();
@@ -14,5 +15,6 @@ router.post("/injury-form", createInjuryForm_controller);
 router.post("/symptom-checklist", createSymptomChecklistForm_controller);
 router.post("/additional-symptoms", createAdditionalSymptomsForm_controller);
 router.post("/headache-form", headachForm_controller);
+router.post("/sleep-disturbance-form", sleepDisturbanceForm_controller);
 
 export default router;

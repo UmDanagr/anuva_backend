@@ -121,3 +121,27 @@ export const createHeadacheFormSchema = z.object({
   daysMissingWorkOrSchool: z.string().optional(),
   daysMissingSocialEvents: z.string().optional(),
 });
+
+export const createSleepDisturbanceFormSchema = z.object({
+  hasSleepDisturbance: z.boolean().optional(),
+  difficultyFallingAsleep: z.boolean().optional(),
+  fallingAsleepSeverity: z.number().min(0).max(10).optional(),
+  fallingAsleepProgression: z.string().optional(),
+  difficultyStayingAsleep: z.boolean().optional(),
+  stayingAsleepSeverity: z.number().min(0).max(10).optional(),
+  stayingAsleepProgression: z.string().optional(),
+  nightmares: z.boolean().optional(),
+  nightmaresSeverity: z.number().min(0).max(10).optional(),
+  nightmaresProgression: z.string().optional(),
+  actsOutDreams: z.boolean().optional(),
+  actsOutDreamsSeverity: z.number().min(0).max(10).optional(),
+  actsOutDreamsProgression: z.string().optional(),
+  earlyMorningWakening: z.boolean().optional(),
+  earlyWakeningSeverity: z.number().min(0).max(10).optional(),
+  earlyWakeningProgression: z.string().optional(),
+  daytimeDrowsiness: z.boolean().optional(),
+  drowsinessSeverity: z.number().min(0).max(10).optional(),
+  drowsinessProgression: z.string().optional(),
+  naps: z.boolean().optional(),
+  numberOfNaps: z.number().optional(),
+});

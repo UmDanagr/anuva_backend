@@ -141,7 +141,18 @@ export const createSleepDisturbanceFormSchema = z.object({
   earlyWakeningProgression: z.string().optional(),
   daytimeDrowsiness: z.boolean().optional(),
   drowsinessSeverity: z.number().min(0).max(10).optional(),
-  drowsinessProgression: z.string().optional(),
+  drowsinessProgression: z.enum(["Better", "Same", "Worse"]).optional(),
   naps: z.boolean().optional(),
   numberOfNaps: z.number().optional(),
+});
+
+export const createBodyPainFormSchema = z.object({
+  bodyPart: z.string().optional(),
+  dateOfOnset: z.string().optional(),
+  severity: z.number().min(0).max(10).optional(),
+  frequency: z.string().optional(),
+  duration: z.string().optional(),
+  triggers: z.string().optional(),
+  relievedBy: z.string().optional(),
+  progression: z.enum(["Better", "Same", "Worse"]).optional(),
 });

@@ -74,7 +74,6 @@ const symptomChecklistSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-const encryptionKey = process.env.ENCRYPTION_SECRET;
 
 symptomChecklistSchema.plugin(fieldEncryption, {
   fields: [
@@ -105,8 +104,8 @@ symptomChecklistSchema.plugin(fieldEncryption, {
     "totalSymptoms",
     "symptomSeverityScore",
   ],
-  secret: encryptionKey,
-  saltGenerator: () => "1234567890abcdef",
+  secret: process.env.ENCRYPTION_SECRET,
+  saltGenerator: () => process.env.ENCRYPTION_SALT,
 });
 
 symptomChecklistSchema.methods.getDecryptedData = function () {

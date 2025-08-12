@@ -9,6 +9,8 @@ import {
   sleepDisturbanceForm_controller,
   createPreviousHeadInjuriesForm,
   createConcussionDetailsForm_controller,
+  createDevelopmentalHistoryForm_controller,
+  createSurgicalHistoryForm_controller,
 } from "../controllers/forms.controller.js";
 
 const router = Router();
@@ -22,5 +24,7 @@ router.post("/sleep-disturbance-form", sleepDisturbanceForm_controller);
 router.post("/body-pain-form", bodyPainForm_controller);
 router.post("/previous-head-injuries-form", createPreviousHeadInjuriesForm);
 router.post("/concussion-details-form", createConcussionDetailsForm_controller);
+router.post("/developmental-history-form", createDevelopmentalHistoryForm_controller);
+router.post("/surgical-history-form", createSurgicalHistoryForm_controller);
 
 export default router;

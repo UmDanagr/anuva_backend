@@ -169,3 +169,20 @@ export const createConcussionDetailsFormSchema = z.object({
   soughtMedicalTreatment: z.boolean().optional(),
   symptomDuration: z.string().optional(),
 });
+
+export const createDevelopmentalHistoryFormSchema = z.object({
+  learningDisabilities: z.boolean().optional(),
+  learningDisabilitiesDescription: z.string().optional(),
+  motorVehicleAccidentHistory: z.boolean().optional(),
+  accidentDates: z.string().optional(),
+  headTrauma: z.boolean().optional(),
+  brainSurgery: z.boolean().optional(),
+  residualImpairments: z.boolean().optional(),
+  impairmentDescription: z.string().optional(),
+});
+
+export const createSurgicalHistoryFormSchema = z.object({
+  surgeryDate: z.string().optional(),
+  bodyPart: z.string().optional(),
+  procedurePerformed: z.string().optional(),
+});

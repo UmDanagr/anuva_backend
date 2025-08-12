@@ -6,18 +6,28 @@ export const get_patients_forms_controller = async (
   res: Response
 ) => {
   try {
-    const patients = await patientInfoFormModel.find({
+    const patientsData = await patientInfoFormModel.find({
       adminId: res.locals.admin_user._id,
-    });
-    for (const patient of patients) {
+    }).lean();
+
+    const patients = patientsData.map((patientDoc: any) => {
+      const patient = new patientInfoFormModel(patientDoc);
       patient.decryptFieldsSync();
-    }
+
+      const decryptedObj = patient.toObject();
+      return Object.fromEntries(
+        Object.entries(decryptedObj).filter(([key]) => !key.startsWith("__enc_"))
+      );
+    });
+
     return res.status(200).json({
       status: true,
-      message: "Patients forms fetched successfully...🎉",
+      message: "Patients forms fetched successfully...��",
       patients,
     });
+
   } catch (error) {
+    console.error("Error fetching patient forms:", error);
     return res.status(400).json({
       status: false,
       message: "Something went wrong...🚨",

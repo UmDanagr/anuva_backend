@@ -13,6 +13,8 @@ import {
   createBodyPainFormSchema,
   createPreviousHeadInjuriesFormSchema,
   createConcussionDetailsFormSchema,
+  createDevelopmentalHistoryFormSchema,
+  createSurgicalHistoryFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -21,6 +23,8 @@ import sleepDisturbanceModel from "../modules/sleepDisturbance.model.js";
 import bodyPainModel from "../modules/bodyPain.model.js";
 import previousHeadInjuriesModel from "../modules/previousHeadInjuries.model.js";
 import concussionDetailsModel from "../modules/concussionDetails.model.js";
+import developmentalHistoryModel from "../modules/developmentalHistory.model.js";
+import surgicalHistoryModel from "../modules/surgicalHistory.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -29,8 +33,8 @@ export const createPatientInfoForm_controller = async (
   try {
     const userId = res.locals.user._id;
 
-    const existform = await userModel.findById(userId);
-    if (existform?.isPatientInfoFormCompleted) {
+    const existingForm = await userModel.findById(userId);
+    if (existingForm?.isPatientInfoFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Patient info form already exists",
@@ -74,8 +78,8 @@ export const createInjuryForm_controller = async (
 ) => {
   try {
     const userId = res.locals.user._id;
-    const existform = await userModel.findById(userId);
-    if (existform?.isInjuryFormCompleted) {
+    const existingForm = await userModel.findById(userId);
+    if (existingForm?.isInjuryFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Injury form already exists",
@@ -122,8 +126,8 @@ export const createSymptomChecklistForm_controller = async (
   try {
     const validatedData = createSymptomChecklistSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isSymptomChecklistFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isSymptomChecklistFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Symptom checklist form already exists",
@@ -215,8 +219,8 @@ export const createAdditionalSymptomsForm_controller = async (
   try {
     const validatedData = createAdditionalSymptomsFormSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isAdditionalSymptomFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isAdditionalSymptomFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Additional symptoms form already exists",
@@ -316,8 +320,8 @@ export const headachForm_controller = async (req: Request, res: Response) => {
   try {
     const validatedData = createHeadacheFormSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isHeadacheFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isHeadacheFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Headache form already exists",
@@ -369,8 +373,8 @@ export const sleepDisturbanceForm_controller = async (
   try {
     const validatedData = createSleepDisturbanceFormSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isSleepDisturbanceFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isSleepDisturbanceFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Sleep disturbance form already exists",
@@ -419,8 +423,8 @@ export const bodyPainForm_controller = async (req: Request, res: Response) => {
   try {
     const validatedData = createBodyPainFormSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isBodyPainFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isBodyPainFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Body pain form already exists",
@@ -467,8 +471,8 @@ export const createPreviousHeadInjuriesForm = async (req: Request, res: Response
   try {
     const validatedData = createPreviousHeadInjuriesFormSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isPreviousHeadInjuriesFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isPreviousHeadInjuriesFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Previous head injuries form already exists",
@@ -517,8 +521,8 @@ export const createConcussionDetailsForm_controller = async (req: Request, res: 
   try {
     const validatedData = createConcussionDetailsFormSchema.parse(req.body);
 
-    const existform = await userModel.findById(res.locals.user._id);
-    if (existform?.isConcussionDetailsFormCompleted) {
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isConcussionDetailsFormCompleted) {
       return res.status(400).json({
         status: false,
         message: "Concussion details form already exists",
@@ -552,6 +556,104 @@ export const createConcussionDetailsForm_controller = async (req: Request, res: 
       status: true,
       message: "Concussion details form created successfully...🎉",
       concussionDetails,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createDevelopmentalHistoryForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createDevelopmentalHistoryFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isDevelopmentalHistoryFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Developmental history form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const devHistoryID = Math.floor(100000 + Math.random() * 900000 + 1);
+    const patientId = res.locals.user.patientId;
+
+    const developmentalHistoryData = {
+      devHistoryID,
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const developmentalHistory = new developmentalHistoryModel(developmentalHistoryData);
+    await developmentalHistory.save();
+    developmentalHistory.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isDevelopmentalHistoryFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Developmental history form created successfully...🎉",
+      developmentalHistory,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createSurgicalHistoryForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createSurgicalHistoryFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isSurgicalHistoryFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Surgical history form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const surgeryID = Math.floor(100000 + Math.random() * 900000 + 1);
+    const patientId = res.locals.user.patientId;
+
+    const surgicalHistoryData = {
+      surgeryID,
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const surgicalHistory = new surgicalHistoryModel(surgicalHistoryData);
+    await surgicalHistory.save();
+    surgicalHistory.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isSurgicalHistoryFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Surgical history form created successfully...🎉",
+      surgicalHistory,
     });
   } catch (error: any) {
     console.log(error);

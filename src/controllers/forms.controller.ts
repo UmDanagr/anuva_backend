@@ -15,6 +15,7 @@ import {
   createConcussionDetailsFormSchema,
   createDevelopmentalHistoryFormSchema,
   createSurgicalHistoryFormSchema,
+  createCurrentMedicationsFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -25,6 +26,7 @@ import previousHeadInjuriesModel from "../modules/previousHeadInjuries.model.js"
 import concussionDetailsModel from "../modules/concussionDetails.model.js";
 import developmentalHistoryModel from "../modules/developmentalHistory.model.js";
 import surgicalHistoryModel from "../modules/surgicalHistory.model.js";
+import currentMedicationsModel from "../modules/currentMedications.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -316,7 +318,7 @@ export const createAdditionalSymptomsForm_controller = async (
   }
 };
 
-export const headachForm_controller = async (req: Request, res: Response) => {
+export const headacheForm_controller = async (req: Request, res: Response) => {
   try {
     const validatedData = createHeadacheFormSchema.parse(req.body);
 
@@ -654,6 +656,56 @@ export const createSurgicalHistoryForm_controller = async (req: Request, res: Re
       status: true,
       message: "Surgical history form created successfully...🎉",
       surgicalHistory,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createCurrentMedicationsForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createCurrentMedicationsFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isCurrentMedicationsFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Current medications form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const medicationID = Math.floor(100000 + Math.random() * 900000 + 1);
+    const patientId = res.locals.user.patientId;
+
+    const currentMedicationsData = {
+      medicationID,
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const currentMedications = new currentMedicationsModel(currentMedicationsData);
+    await currentMedications.save();
+    currentMedications.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isCurrentMedicationsFormCompleted: true,
+      medicationID: medicationID.toString(),
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Current medications form created successfully...🎉",
+      currentMedications,
     });
   } catch (error: any) {
     console.log(error);

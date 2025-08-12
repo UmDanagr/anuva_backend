@@ -186,3 +186,10 @@ export const createSurgicalHistoryFormSchema = z.object({
   bodyPart: z.string().optional(),
   procedurePerformed: z.string().optional(),
 });
+
+export const createCurrentMedicationsFormSchema = z.object({
+  medicineName: z.string().optional(),
+  reasonForTaking: z.string().optional(),
+  dosage: z.string().optional(),
+  amount: z.string().optional(),
+});

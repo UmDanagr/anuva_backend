@@ -161,3 +161,11 @@ export const createPreviousHeadInjuriesFormSchema = z.object({
   hasPreviousInjuries: z.boolean().optional(),
   totalNumberOfInjuries: z.number().min(0).max(10).optional(),
 });
+
+export const createConcussionDetailsFormSchema = z.object({
+  concussionNumber: z.number().optional(),
+  injuryDate: z.string().optional(),
+  knockedUnconscious: z.boolean().optional(),
+  soughtMedicalTreatment: z.boolean().optional(),
+  symptomDuration: z.string().optional(),
+});

@@ -12,6 +12,7 @@ import {
   createSleepDisturbanceFormSchema,
   createBodyPainFormSchema,
   createPreviousHeadInjuriesFormSchema,
+  createConcussionDetailsFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -19,6 +20,7 @@ import headacheModel from "../modules/headache.model.js";
 import sleepDisturbanceModel from "../modules/sleepDisturbance.model.js";
 import bodyPainModel from "../modules/bodyPain.model.js";
 import previousHeadInjuriesModel from "../modules/previousHeadInjuries.model.js";
+import concussionDetailsModel from "../modules/concussionDetails.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -500,6 +502,57 @@ export const createPreviousHeadInjuriesForm = async (req: Request, res: Response
       previousHeadInjuries,
     });
 
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createConcussionDetailsForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createConcussionDetailsFormSchema.parse(req.body);
+
+    const existform = await userModel.findById(res.locals.user._id);
+    if (existform?.isConcussionDetailsFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Concussion details form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const previousInjuryID = res.locals.user.injuryId;
+    const patientId = res.locals.user.patientId;
+    const concussionDetailID = Math.floor(100000 + Math.random() * 900000 + 1);
+    
+    const concussionDetailsData = {
+      concussionDetailID,
+      previousInjuryID,
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const concussionDetails = new concussionDetailsModel(concussionDetailsData);
+    await concussionDetails.save();
+    concussionDetails.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isConcussionDetailsFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Concussion details form created successfully...🎉",
+      concussionDetails,
+    });
   } catch (error: any) {
     console.log(error);
     return res.status(400).send({

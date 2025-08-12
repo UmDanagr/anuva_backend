@@ -32,6 +32,7 @@ export interface IUser {
   isHeadacheFormCompleted?: boolean;
   isSleepDisturbanceFormCompleted?: boolean;
   isBodyPainFormCompleted?: boolean;
+  isPreviousHeadInjuriesFormCompleted?: boolean;
   injuryId?: string;
   getDecryptedData: () => Record<string, any>;
 }

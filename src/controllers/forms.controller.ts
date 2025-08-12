@@ -11,12 +11,14 @@ import {
   createHeadacheFormSchema,
   createSleepDisturbanceFormSchema,
   createBodyPainFormSchema,
+  createPreviousHeadInjuriesFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
 import headacheModel from "../modules/headache.model.js";
 import sleepDisturbanceModel from "../modules/sleepDisturbance.model.js";
 import bodyPainModel from "../modules/bodyPain.model.js";
+import previousHeadInjuriesModel from "../modules/previousHeadInjuries.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -458,3 +460,53 @@ export const bodyPainForm_controller = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const createPreviousHeadInjuriesForm = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createPreviousHeadInjuriesFormSchema.parse(req.body);
+
+    const existform = await userModel.findById(res.locals.user._id);
+    if (existform?.isPreviousHeadInjuriesFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Previous head injuries form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const previousInjuryID = res.locals.user.injuryId;
+    const patientId = res.locals.user.patientId;
+
+    const previousHeadInjuriesData = {
+      previousInjuryID,
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const previousHeadInjuries = new previousHeadInjuriesModel(previousHeadInjuriesData);
+    await previousHeadInjuries.save();
+    previousHeadInjuries.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isPreviousHeadInjuriesFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Previous head injuries form created successfully...🎉",
+      previousHeadInjuries,
+    });
+
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}

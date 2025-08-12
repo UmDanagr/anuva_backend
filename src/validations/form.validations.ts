@@ -156,3 +156,8 @@ export const createBodyPainFormSchema = z.object({
   relievedBy: z.string().optional(),
   progression: z.enum(["better", "same", "worse"]).optional(),
 });
+
+export const createPreviousHeadInjuriesFormSchema = z.object({
+  hasPreviousInjuries: z.boolean().optional(),
+  totalNumberOfInjuries: z.number().min(0).max(10).optional(),
+});

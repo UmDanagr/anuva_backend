@@ -22,7 +22,7 @@ export interface IUser extends Document {
   isHeadacheFormCompleted?: boolean;
   isSleepDisturbanceFormCompleted?: boolean;
   isBodyPainFormCompleted?: boolean;
-
+  isPreviousHeadInjuriesFormCompleted?: boolean;
   injuryId?: string;
   adminId: Types.ObjectId;
   decryptFieldsSync: () => void;
@@ -101,6 +101,10 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    isPreviousHeadInjuriesFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -143,6 +147,7 @@ userSchema.methods.getDecryptedData = function () {
       isHeadacheFormCompleted: this.isHeadacheFormCompleted,
       isSleepDisturbanceFormCompleted: this.isSleepDisturbanceFormCompleted,
       isBodyPainFormCompleted: this.isBodyPainFormCompleted,
+      isPreviousHeadInjuriesFormCompleted: this.isPreviousHeadInjuriesFormCompleted,
       injuryId: this.injuryId,
       adminId: this.adminId,
     };

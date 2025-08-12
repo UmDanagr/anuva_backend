@@ -193,3 +193,11 @@ export const createCurrentMedicationsFormSchema = z.object({
   dosage: z.string().optional(),
   amount: z.string().optional(),
 });
+
+
+export const createPastMedicationsFormSchema = z.object({
+  medicineName: z.string().optional(),
+  reasonForTaking: z.string().optional(),
+  dosage: z.string().optional(),
+  amount: z.string().optional(),
+});

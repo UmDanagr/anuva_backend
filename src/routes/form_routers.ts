@@ -12,6 +12,7 @@ import {
   createDevelopmentalHistoryForm_controller,
   createSurgicalHistoryForm_controller,
   createCurrentMedicationsForm_controller,
+  createPastMedicationsForm_controller,
 } from "../controllers/forms.controller.js";
 
 const router = Router();
@@ -28,5 +29,6 @@ router.post("/concussion-details-form", createConcussionDetailsForm_controller);
 router.post("/developmental-history-form", createDevelopmentalHistoryForm_controller);
 router.post("/surgical-history-form", createSurgicalHistoryForm_controller);
 router.post("/current-medications-form", createCurrentMedicationsForm_controller);
+router.post("/past-medications-form", createPastMedicationsForm_controller);
 
 export default router;

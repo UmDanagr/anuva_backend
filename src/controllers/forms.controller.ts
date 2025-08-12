@@ -16,6 +16,7 @@ import {
   createDevelopmentalHistoryFormSchema,
   createSurgicalHistoryFormSchema,
   createCurrentMedicationsFormSchema,
+  createPastMedicationsFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -27,6 +28,7 @@ import concussionDetailsModel from "../modules/concussionDetails.model.js";
 import developmentalHistoryModel from "../modules/developmentalHistory.model.js";
 import surgicalHistoryModel from "../modules/surgicalHistory.model.js";
 import currentMedicationsModel from "../modules/currentMedications.model.js";
+import pastMedicationsModel from "../modules/pastMedications.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -706,6 +708,55 @@ export const createCurrentMedicationsForm_controller = async (req: Request, res:
       status: true,
       message: "Current medications form created successfully...🎉",
       currentMedications,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createPastMedicationsForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createPastMedicationsFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isPastMedicationsFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Past medications form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const pastMedicationID = res.locals.user.medicationID;
+    const patientId = res.locals.user.patientId;
+
+    const pastMedicationsData = {
+      pastMedicationID,
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const pastMedications = new pastMedicationsModel(pastMedicationsData);
+    await pastMedications.save();
+    pastMedications.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isPastMedicationsFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Past medications form created successfully...🎉",
+      pastMedications,
     });
   } catch (error: any) {
     console.log(error);

@@ -30,6 +30,8 @@ export interface IUser extends Document {
   isPastMedicationsFormCompleted?: boolean;
   isAllergiesFormCompleted?: boolean;
   isSeizureHistoryFormCompleted?: boolean;
+  isFamilyHistoryFormCompleted?: boolean;
+  isSubstanceUseHistoryFormCompleted?: boolean;
   medicationID?: string;
   injuryId?: string;
   adminId: Types.ObjectId;
@@ -141,6 +143,14 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    isFamilyHistoryFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isSubstanceUseHistoryFormCompleted: {
+      type: Boolean,
+      default: false,
+    },
     medicationID: {
       type: String,
     },
@@ -194,6 +204,8 @@ userSchema.methods.getDecryptedData = function () {
       isPastMedicationsFormCompleted: this.isPastMedicationsFormCompleted,
       isAllergiesFormCompleted: this.isAllergiesFormCompleted,
       isSeizureHistoryFormCompleted: this.isSeizureHistoryFormCompleted,
+      isFamilyHistoryFormCompleted: this.isFamilyHistoryFormCompleted,
+      isSubstanceUseHistoryFormCompleted: this.isSubstanceUseHistoryFormCompleted,
       injuryId: this.injuryId,
       adminId: this.adminId,
     };

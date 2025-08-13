@@ -29,7 +29,7 @@ const seizureHistorySchema = new mongoose.Schema<ISeizureHistory>({
   typeOfSeizure: { type: String },
   dateOfLastSeizure: { type: String },
   currentMedications: { type: String },
-});
+}, { timestamps: true });
 
 seizureHistorySchema.plugin(fieldEncryption, {
   fields: ["dateOfOnset", "typeOfSeizure", "dateOfLastSeizure", "currentMedications", "hasSeizureHistory"],

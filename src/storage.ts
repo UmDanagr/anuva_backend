@@ -40,6 +40,8 @@ export interface IUser {
   isPastMedicationsFormCompleted?: boolean;
   isAllergiesFormCompleted?: boolean;
   isSeizureHistoryFormCompleted?: boolean;
+  isFamilyHistoryFormCompleted?: boolean;
+  isSubstanceUseHistoryFormCompleted?: boolean;
   medicationID?: string;
   injuryId?: string;
   getDecryptedData: () => Record<string, any>;

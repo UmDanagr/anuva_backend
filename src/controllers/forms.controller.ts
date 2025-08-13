@@ -19,6 +19,8 @@ import {
   createPastMedicationsFormSchema,
   createAllergiesFormSchema,
   createSeizureHistoryFormSchema,
+  createFamilyHistoryFormSchema,
+  createSubstanceUseHistoryFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -33,6 +35,8 @@ import currentMedicationsModel from "../modules/currentMedications.model.js";
 import pastMedicationsModel from "../modules/pastMedications.model.js";
 import allergiesModel from "../modules/allergies.model.js";
 import seizureHistoryModel from "../modules/seizureHistory.model.js";
+import familyHistoryModel from "../modules/familyHistory.model.js";
+import substanceUseHistoryModel from "../modules/substanceUseHistory.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -854,6 +858,100 @@ export const createSeizureHistoryForm_controller = async (req: Request, res: Res
       status: true,
       message: "Seizure history form created successfully...🎉",
       seizureHistory,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createFamilyHistoryForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createFamilyHistoryFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isFamilyHistoryFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Family history form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const patientId = res.locals.user.patientId;
+
+    const familyHistoryData = {
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const familyHistory = new familyHistoryModel(familyHistoryData);
+    await familyHistory.save();
+    familyHistory.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isFamilyHistoryFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Family history form created successfully...🎉",
+      familyHistory,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createSubstanceUseHistoryForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createSubstanceUseHistoryFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isSubstanceUseHistoryFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Substance use history form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const patientId = res.locals.user.patientId;
+
+    const substanceUseHistoryData = {
+      patientId,  
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const substanceUseHistory = new substanceUseHistoryModel(substanceUseHistoryData);
+    await substanceUseHistory.save();
+    substanceUseHistory.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isSubstanceUseHistoryFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Substance use history form created successfully...🎉",
+      substanceUseHistory,
     });
   } catch (error: any) {
     console.log(error);

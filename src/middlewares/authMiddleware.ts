@@ -1,31 +1,30 @@
-import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import userModel, { IUser } from "../modules/user.model.js";
-import adminUserModel, { IAdminUser } from "../modules/admin.users.js";
+import { SessionService } from "../services/session.service.js";
 
 export const is_logged_in = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "unauthorized" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await userModel.findById(decoded.userId);
+    const user = await SessionService.validateSessionAndGetUser(req);
     if (!user) {
-      return res.status(401).json({ error: "unauthorized" });
+      return res.status(401).json({ 
+        error: "unauthorized",
+        message: "Authentication required. Please log in.",
+        code: "SESSION_EXPIRED"
+      });
     }
+    
     res.locals.user = user;
     next();
-  } catch (err) {
-    res.status(401).json({ error: "unauthorized" });
+  } catch (error) {
+    console.error('Session validation error:', error);
+    return res.status(401).json({ 
+      error: "unauthorized",
+      message: "Authentication failed.",
+      code: "SESSION_ERROR"
+    });
   }
 };
 
@@ -34,30 +33,45 @@ export const is_admin_logged_in = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "unauthorized" });
-  }
-
-  const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await adminUserModel.findById(decoded.userId);
+    const user = await SessionService.validateSessionAndGetUser(req);
     if (!user) {
-      return res.status(401).json({ error: "unauthorized" });
+      return res.status(401).json({ 
+        error: "unauthorized",
+        message: "Authentication required. Please log in.",
+        code: "SESSION_EXPIRED"
+      });
     }
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ 
+        error: "forbidden",
+        message: "Admin access required.",
+        code: "INSUFFICIENT_PERMISSIONS"
+      });
+    }
+    
     res.locals.admin_user = user;
     next();
-  } catch (err) {
-    res.status(401).json({ error: "unauthorized" });
+  } catch (error) {
+    console.error('Admin session validation error:', error);
+    return res.status(401).json({ 
+      error: "unauthorized",
+      message: "Authentication failed.",
+      code: "SESSION_ERROR"
+    });
   }
 };
 
 export const admin_role_middleware = (isAdmin: boolean) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const user = res.locals.admin_user as IAdminUser;
-    if (user?.isAdmin !== isAdmin) {
-      return res.status(403).json({ error: "forbidden" });
+    const user = res.locals.admin_user;
+    if (user?.role !== 'admin') {
+      return res.status(403).json({ 
+        error: "forbidden",
+        message: "Insufficient permissions.",
+        code: "INSUFFICIENT_PERMISSIONS"
+      });
     }
     next();
   };

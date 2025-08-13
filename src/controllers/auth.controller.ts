@@ -12,6 +12,7 @@ import { storage } from "../storage.js";
 import { sendEmail } from "../services/email_service.js";
 import User from "../modules/user.model.js";
 import { Otp } from "../modules/otp.model.js";
+import { SessionService } from "../services/session.service.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -43,7 +44,12 @@ export const signup = async (req: Request, res: Response) => {
 
     user.decryptFieldsSync();
 
+    // Generate JWT token first
     const token = generateToken(res, user._id as Types.ObjectId);
+    
+    // Create session for the new user with JWT token
+    SessionService.createSession(req, user, token);
+    
     await sendEmail(
       user.email,
       "Welcome to our app",
@@ -59,7 +65,7 @@ export const signup = async (req: Request, res: Response) => {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      token,
+      token
     });
   } catch (error) {
     return res.status(400).json({
@@ -169,7 +175,12 @@ export const admin_signup_controller = async (req: Request, res: Response) => {
       isAdmin: true,
     });
 
+    // Generate JWT token first
     const token = generateToken(res, user._id as Types.ObjectId);
+    
+    // Create session for the new admin user with JWT token
+    SessionService.createSession(req, user, token);
+
     return res.status(201).json({
       status: true,
       message: "Account created successfully...🎉",
@@ -201,7 +212,13 @@ export const admin_login_controller = async (req: Request, res: Response) => {
         message: "username or password is incorrect...🚨",
       });
     }
+
+    // Generate JWT token first
     const token = generateToken(res, user._id as Types.ObjectId);
+    
+    // Create session for admin user with JWT token
+    SessionService.createSession(req, user, token);
+
     return res.status(200).json({
       status: true,
       message: "Login successfully...🎉",
@@ -355,11 +372,28 @@ export const verify_otp_controller = async (req: Request, res: Response) => {
       });
     }
 
+    // Get user data and create session
+    const user = await storage.getUser(otpDocument.userId.toString());
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found...🚨",
+      });
+    }
+
+    // Generate JWT token first
     const token = generateToken(res, otpDocument.userId as Types.ObjectId);
+    
+    // Create session for the authenticated user with JWT token
+    SessionService.createSession(req, user, token);
+    
+    // Delete the used OTP
+    await Otp.deleteOne({ _id: otpDocument._id });
+
     return res.status(200).json({
       status: true,
       message: "OTP verified successfully...🎉",
-      token,
+      token
     });
   } catch (error) {
     return res.status(400).json({

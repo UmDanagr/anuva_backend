@@ -263,3 +263,16 @@ export const createSubstanceUseHistoryFormSchema = z.object({
   substancesCurrentlySober: z.boolean().optional(),
   substancesLastUse: z.string().optional(),
 });
+
+export const createPreviousTestsFormSchema = z.object({
+  neurologicalImaging: z.boolean().optional(),
+  neurologicalImagingDates: z.string().optional(),
+  impactTesting: z.boolean().optional(),
+  impactTestingDates: z.string().optional(),
+  neuroPsychologicalTesting: z.boolean().optional(),
+  neuroPsychologicalTestingDates: z.string().optional(),
+  EEG: z.boolean().optional(),
+  EEGDates: z.string().optional(),
+  bloodWork: z.boolean().optional(),
+  bloodWorkDates: z.string().optional(),
+});

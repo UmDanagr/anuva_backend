@@ -21,6 +21,7 @@ import {
   createSeizureHistoryFormSchema,
   createFamilyHistoryFormSchema,
   createSubstanceUseHistoryFormSchema,
+  createPreviousTestsFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -37,6 +38,7 @@ import allergiesModel from "../modules/allergies.model.js";
 import seizureHistoryModel from "../modules/seizureHistory.model.js";
 import familyHistoryModel from "../modules/familyHistory.model.js";
 import substanceUseHistoryModel from "../modules/substanceUseHistory.model.js";
+import previousTestsModel from "../modules/previousTests.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -952,6 +954,53 @@ export const createSubstanceUseHistoryForm_controller = async (req: Request, res
       status: true,
       message: "Substance use history form created successfully...🎉",
       substanceUseHistory,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createPreviousTestsForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createPreviousTestsFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isPreviousTestsFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Previous tests form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const patientId = res.locals.user.patientId;
+
+    const previousTestsData = {
+      patientId,  
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const previousTests = new previousTestsModel(previousTestsData);
+    await previousTests.save();
+    previousTests.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isPreviousTestsFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Previous tests form created successfully...🎉",
+      previousTests,
     });
   } catch (error: any) {
     console.log(error);

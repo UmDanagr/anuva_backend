@@ -17,6 +17,7 @@ import {
   createSeizureHistoryForm_controller,
   createFamilyHistoryForm_controller,
   createSubstanceUseHistoryForm_controller,
+  createPreviousTestsForm_controller,
 } from "../controllers/forms.controller.js";
 
 const router = Router();
@@ -38,5 +39,6 @@ router.post("/allergies-form", createAllergiesForm_controller);
 router.post("/seizure-history-form", createSeizureHistoryForm_controller);
 router.post("/family-history-form", createFamilyHistoryForm_controller);
 router.post("/substance-use-history-form", createSubstanceUseHistoryForm_controller);
+router.post("/previous-tests-form", createPreviousTestsForm_controller);
 
 export default router;

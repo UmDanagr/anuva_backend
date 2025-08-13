@@ -17,6 +17,8 @@ import {
   createSurgicalHistoryFormSchema,
   createCurrentMedicationsFormSchema,
   createPastMedicationsFormSchema,
+  createAllergiesFormSchema,
+  createSeizureHistoryFormSchema,
 } from "../validations/form.validations.js";
 import symptom_checklistModel from "../modules/symptom_checklist.model.js";
 import additionalSymptomsModel from "../modules/additional.symptoms.model.js";
@@ -29,6 +31,8 @@ import developmentalHistoryModel from "../modules/developmentalHistory.model.js"
 import surgicalHistoryModel from "../modules/surgicalHistory.model.js";
 import currentMedicationsModel from "../modules/currentMedications.model.js";
 import pastMedicationsModel from "../modules/pastMedications.model.js";
+import allergiesModel from "../modules/allergies.model.js";
+import seizureHistoryModel from "../modules/seizureHistory.model.js";
 
 export const createPatientInfoForm_controller = async (
   req: Request,
@@ -757,6 +761,99 @@ export const createPastMedicationsForm_controller = async (req: Request, res: Re
       status: true,
       message: "Past medications form created successfully...🎉",
       pastMedications,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createAllergiesForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createAllergiesFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isAllergiesFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Allergies form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;
+    const patientId = res.locals.user.patientId;
+
+    const allergiesData = {
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const allergies = new allergiesModel(allergiesData);
+    await allergies.save();
+    allergies.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isAllergiesFormCompleted: true,   
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Allergies form created successfully...🎉",
+      allergies,
+    });
+  } catch (error: any) {
+    return res.status(400).send({
+      status: false,
+      message: "Something went wrong...🚨",
+      validationError: error?.errors,
+      error: error,
+    });
+  }
+}
+
+export const createSeizureHistoryForm_controller = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createSeizureHistoryFormSchema.parse(req.body);
+
+    const existingForm = await userModel.findById(res.locals.user._id);
+    if (existingForm?.isSeizureHistoryFormCompleted) {
+      return res.status(400).json({
+        status: false,
+        message: "Seizure history form already exists",
+      });
+    }
+
+    const userId = res.locals.user._id;
+    const adminId = res.locals.user.adminId;  
+    const patientId = res.locals.user.patientId;
+
+    const seizureHistoryData = {
+      patientId,
+      userId,
+      adminId,
+      ...validatedData,
+    };
+
+    const seizureHistory = new seizureHistoryModel(seizureHistoryData);
+    await seizureHistory.save();
+    seizureHistory.decryptFieldsSync();
+
+    await storage.updateUser(userId, {
+      isSeizureHistoryFormCompleted: true,
+    });
+
+    return res.status(201).send({
+      status: true,
+      message: "Seizure history form created successfully...🎉",
+      seizureHistory,
     });
   } catch (error: any) {
     console.log(error);

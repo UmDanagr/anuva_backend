@@ -201,3 +201,17 @@ export const createPastMedicationsFormSchema = z.object({
   dosage: z.string().optional(),
   amount: z.string().optional(),
 });
+
+export const createAllergiesFormSchema = z.object({
+  allergen: z.string().optional(),
+  reaction: z.string().optional(),
+  treatment: z.string().optional(),
+});
+
+export const createSeizureHistoryFormSchema = z.object({
+  hasSeizureHistory: z.boolean().optional(),
+  dateOfOnset: z.string().optional(),
+  typeOfSeizure: z.string().optional(),
+  dateOfLastSeizure: z.string().optional(),
+  currentMedications: z.string().optional(),
+});

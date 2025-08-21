@@ -1,18 +1,20 @@
 version: 0.2
-
 phases:
   install:
     runtime-versions:
       nodejs: 18
+  pre_build:
     commands:
-      - echo "Installing dependencies..."
-      - npm ci
+      - echo Installing dependencies
+      - npm install
   build:
     commands:
-      - echo "Building Vite project..."
+      - echo Build started on `date`
       - npm run build
+  post_build:
+    commands:
+      - echo Build completed on `date`
 artifacts:
   files:
     - '**/*'
-  base-directory: dist
-  discard-paths: no
+  base-directory: .

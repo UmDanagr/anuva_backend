@@ -1,5 +1,6 @@
 version: 0.0
 os: linux
+
 files:
   - source: /
     destination: /var/www/html
@@ -14,6 +15,9 @@ permissions:
 
 hooks:
   BeforeInstall:
+    - location: scripts/create_folders.sh
+      timeout: 300
+      runas: root
     - location: scripts/install_dependencies.sh
       timeout: 300
       runas: root

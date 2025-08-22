@@ -1,16 +1,13 @@
-#!/bin/bash
-echo "Installing dependencies..."
-cd /var/www/html
-
-# Install Node.js if not present
-if ! command -v node &> /dev/null; then
-    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
-    sudo yum install -y nodejs
-fi
-
-# Install dependencies
-if [ -f "package.json" ]; then
-    npm install --production
-fi
-echo "Dependencies installed"
-EOF
+echo '#!/bin/bash' > scripts/install_dependencies.sh
+echo 'echo "Installing dependencies..."' >> scripts/install_dependencies.sh
+echo 'cd /var/www/html' >> scripts/install_dependencies.sh
+echo '' >> scripts/install_dependencies.sh
+echo 'if ! command -v node &> /dev/null; then' >> scripts/install_dependencies.sh
+echo '    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -' >> scripts/install_dependencies.sh
+echo '    sudo yum install -y nodejs' >> scripts/install_dependencies.sh
+echo 'fi' >> scripts/install_dependencies.sh
+echo '' >> scripts/install_dependencies.sh
+echo 'if [ -f "package.json" ]; then' >> scripts/install_dependencies.sh
+echo '    npm install --production' >> scripts/install_dependencies.sh
+echo 'fi' >> scripts/install_dependencies.sh
+echo 'echo "Dependencies installed"' >> scripts/install_dependencies.sh

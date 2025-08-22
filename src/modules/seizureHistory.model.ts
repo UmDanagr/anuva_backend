@@ -13,6 +13,7 @@ export interface ISeizureHistory extends Document {
   dateOfLastSeizure: string;
   currentMedications: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const seizureHistorySchema = new mongoose.Schema<ISeizureHistory>({
@@ -52,4 +53,4 @@ seizureHistorySchema.methods.getDecryptedData = function () {
     }   
 }
 
-export default mongoose.model<ISeizureHistory>("seizureHistory", seizureHistorySchema);
+export default mongoose.model<ISeizureHistory>("seizurehistories", seizureHistorySchema);

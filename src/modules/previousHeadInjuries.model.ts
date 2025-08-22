@@ -9,6 +9,7 @@ export interface IPreviousHeadInjuries extends Document {
   hasPreviousInjuries: boolean;
   totalNumberOfInjuries: number;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const previousHeadInjuriesSchema = new mongoose.Schema({

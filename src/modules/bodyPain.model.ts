@@ -15,6 +15,7 @@ export interface IBodyPain extends Document {
   relievedBy: string;
   progression: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const bodyPainSchema = new mongoose.Schema<IBodyPain>({

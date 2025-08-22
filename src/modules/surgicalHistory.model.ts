@@ -10,6 +10,7 @@ export interface ISurgicalHistory extends Document {
   bodyPart: string;
   procedurePerformed: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const surgicalHistorySchema = new Schema<ISurgicalHistory>(
@@ -65,6 +66,6 @@ surgicalHistorySchema.methods.getDecryptedData = function () {
 };
 
 export default mongoose.model<ISurgicalHistory>(
-  "surgicalHistory",
+  "surgicalhistories",
   surgicalHistorySchema
 );

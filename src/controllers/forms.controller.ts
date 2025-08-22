@@ -209,6 +209,7 @@ export const createSymptomChecklistForm_controller = async (
 
     await storage.updateUser(userId, {
       isSymptomChecklistFormCompleted: true,
+      pcssScore: [...(existingForm?.pcssScore || []), symptomSeverityScore],
     });
 
     return res.status(201).send({

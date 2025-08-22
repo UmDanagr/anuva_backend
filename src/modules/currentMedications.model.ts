@@ -11,6 +11,7 @@ export interface ICurrentMedications extends Document {
   dosage: string;
   amount: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const currentMedicationsSchema = new mongoose.Schema({

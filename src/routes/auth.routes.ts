@@ -12,6 +12,7 @@ import {
   reset_password_controller,
   resend_otp_controller,
   verify_otp_controller,
+  forget_password_controller,
 } from "../controllers/auth.controller.js";
 import {
   admin_role_middleware,
@@ -27,6 +28,7 @@ router.post("/admin/login", admin_login_controller);
 router.post("/reset-password", reset_password_controller);
 router.post("/verify-otp", verify_otp_controller);
 router.post("/resend-otp", resend_otp_controller);
+router.post("/forget-password", forget_password_controller);
 router.use(is_admin_logged_in, admin_role_middleware(true));
 router.get("/admin/user", get_admin_users_controller);
 router.get("/admin/users", get_all_users_controller);

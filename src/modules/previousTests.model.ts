@@ -18,6 +18,7 @@ export interface IPreviousTests extends Document {
   bloodWork: boolean;
   bloodWorkDates: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const previousTestsSchema = new mongoose.Schema<IPreviousTests>(

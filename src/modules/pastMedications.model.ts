@@ -11,6 +11,7 @@ export interface IPastMedications extends Document {
   dosage: string;
   amount: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const pastMedicationsSchema = new mongoose.Schema<IPastMedications>(

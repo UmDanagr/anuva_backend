@@ -6,6 +6,7 @@ export const signupSchema = z.object({
   dateOfBirth: z.string({ required_error: "Date of birth is required" }),
   email: z.string({ required_error: "Email is required" }).email(),
   phoneNumber: z.string({ required_error: "Phone number is required" }).min(10),
+  gender: z.enum(["male", "female", "other"]),
   password: z
     .string({ required_error: "Password is required" })
     .min(8, { message: "Password must be at least 8 characters long" }),

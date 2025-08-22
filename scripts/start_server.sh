@@ -1,15 +1,18 @@
-echo '#!/bin/bash' > scripts/start_server.sh
-echo 'echo "Starting application..."' >> scripts/start_server.sh
-echo 'cd /var/www/html' >> scripts/start_server.sh
-echo '' >> scripts/start_server.sh
-echo 'if [ -f "app.js" ]; then' >> scripts/start_server.sh
-echo '    nohup node app.js > app.log 2>&1 &' >> scripts/start_server.sh
-echo 'elif [ -f "server.js" ]; then' >> scripts/start_server.sh
-echo '    nohup node server.js > app.log 2>&1 &' >> scripts/start_server.sh
-echo 'elif [ -f "index.ts" ]; then' >> scripts/start_server.sh
-echo '    nohup node index.ts > app.log 2>&1 &' >> scripts/start_server.sh
-echo 'else' >> scripts/start_server.sh
-echo '    nohup npm start > app.log 2>&1 &' >> scripts/start_server.sh
-echo 'fi' >> scripts/start_server.sh
-echo '' >> scripts/start_server.sh
-echo 'echo "Application started"' >> scripts/start_server.sh
+#!/bin/bash
+echo "Starting application..."
+
+cd /var/www/html
+
+# Kill existing app (just in case) before starting fresh
+pm2 delete anuva_backend || true
+
+# Start compiled JS from dist/
+if [ -f "dist/index.js" ]; then
+    pm2 start dist/index.js --name anuva_backend
+else
+    echo "dist/index.js not found. Did the build run?"
+    exit 1
+fi
+
+pm2 save
+echo "Application started with PM2."

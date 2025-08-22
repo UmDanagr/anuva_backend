@@ -39,6 +39,7 @@ export interface IAdditionalSymptoms extends Document {
   totalSymptoms: number;
   symptomSeverityScore: number;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const additionalSymptomsSchema = new mongoose.Schema<IAdditionalSymptoms>(
@@ -172,6 +173,6 @@ additionalSymptomsSchema.methods.getDecryptedData = function () {
 };
 
 export default mongoose.model<IAdditionalSymptoms>(
-  "additionalSymptoms",
+  "additionalsymptoms",
   additionalSymptomsSchema
 );

@@ -113,7 +113,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(400).json({
       status: false,
       message: "something went wrong...🚨",
-      error: error?.errors,
+      error: (error as any)?.errors,
     });
   }
 };
@@ -207,7 +207,6 @@ export const admin_login_controller = async (req: Request, res: Response) => {
       message: "Login successfully...🎉",
       user,
       token,
-      log:"server change"
     });
   } catch (error) {
     return res.status(400).json({
@@ -291,6 +290,7 @@ export const create_user_controller = async (req: Request, res: Response) => {
       profileImageUrl: null,
       insuranceProvider: userData.insuranceProvider,
       password: null,
+      gender: userData.gender,
     });
 
     await newUser.save();
@@ -380,7 +380,6 @@ export const resend_otp_controller = async (req: Request, res: Response) => {
         message: "User not found...🚨",
       });
     }
-    console.log(user);
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     await Otp.create({
       userId: user._id,
@@ -397,6 +396,62 @@ export const resend_otp_controller = async (req: Request, res: Response) => {
       status: true,
       message: "OTP resent successfully...🎉",
     });
+  } catch (error) {
+    return res.status(400).json({
+      status: false,
+      message: "something went wrong...🚨",
+      error: error,
+    });
+  }
+};
+
+export const forget_password_controller = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword, action } = req.body;
+
+    if (action === "request_otp") {
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).send({ status: false, message: "User not found" });
+      }
+      const OTP = Math.floor(1000 + Math.random() * 9000).toString();
+      await Otp.create({
+        email,
+        otp: OTP,
+        userId: user._id,
+        patientId: user.patientId,
+      });
+      await sendEmail(email, "Password Reset OTP", `Your one time password is ${OTP}`);
+      return res.status(200).send({status: true, message: "OTP sent to email" });
+    }
+  
+    if (action === "verify_otp") {
+      const otpRecord = await Otp.findOne({ email, otp });
+      if (!otpRecord ) {
+        return res.status(400).send({ status: false, message: "Invalid or expired OTP" });
+      }
+      return res
+        .status(200)
+        .send({ status: true, message: "OTP verified. You can now reset your password." });
+    }
+  
+    if (action === "reset_password") {
+      const otpRecord = await Otp.findOne({ email });
+      if (!otpRecord) {
+        return res
+          .status(400)
+          .send({ status: false, message: "OTP not verified. Cannot reset password." });
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const user = await storage.updateUser(otpRecord.userId, { password: hashedPassword });
+      if (!user) {
+        return res.status(404).send({ status: false, message: "User not found" });
+      }
+      await Otp.deleteOne({ email });
+      return res.status(200).send({ status: true, message: "Password reset successful" });
+    }
+  
+    return res.status(400).send({ status: false, message: "Invalid action" });
   } catch (error) {
     return res.status(400).json({
       status: false,

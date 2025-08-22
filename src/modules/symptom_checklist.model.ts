@@ -34,6 +34,7 @@ export interface SymptomChecklist extends Document {
   totalSymptoms: number;
   symptomSeverityScore: number;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const symptomChecklistSchema = new mongoose.Schema(

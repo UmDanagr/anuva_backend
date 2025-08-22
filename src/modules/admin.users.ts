@@ -14,6 +14,7 @@ export interface IAdminUser extends Document {
   speciality?: string;
   isAdmin?: boolean;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const adminUserSchema = new Schema<IAdminUser>(

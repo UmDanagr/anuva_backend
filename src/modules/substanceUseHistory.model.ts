@@ -38,6 +38,7 @@ export interface ISubstanceUseHistory extends Document {
   substancesCurrentlySober: boolean;
   substancesLastUse: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const substanceUseHistorySchema = new mongoose.Schema<ISubstanceUseHistory>(
@@ -173,6 +174,6 @@ substanceUseHistorySchema.methods.getDecryptedData = function () {
 };
 
 export default mongoose.model<ISubstanceUseHistory>(
-  "substanceUseHistory",
+  "substanceusehistories",
   substanceUseHistorySchema
 );

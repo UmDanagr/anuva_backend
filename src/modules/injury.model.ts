@@ -29,6 +29,7 @@ export interface IInjury extends Document {
   ERdetails?: string;
   testPerformed?: boolean;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const injurySchema = new mongoose.Schema(
@@ -169,4 +170,4 @@ injurySchema.methods.getDecryptedData = function () {
   };
 };
 
-export default mongoose.model<IInjury>("Injury", injurySchema);
+export default mongoose.model<IInjury>("injuries", injurySchema);

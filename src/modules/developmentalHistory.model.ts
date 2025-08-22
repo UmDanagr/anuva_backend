@@ -15,6 +15,7 @@ export interface IDevelopmentalHistory extends Document {
   residualImpairments: boolean;
   impairmentDescription: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const developmentalHistorySchema = new mongoose.Schema<IDevelopmentalHistory>(
@@ -101,6 +102,6 @@ developmentalHistorySchema.methods.getDecryptedData = function () {
 };
 
 export default mongoose.model<IDevelopmentalHistory>(
-  "developmentalHistory",
+  "developmentalhistories",
   developmentalHistorySchema
 );

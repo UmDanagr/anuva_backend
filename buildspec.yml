@@ -1,20 +1,26 @@
 version: 0.2
+
 phases:
   install:
     runtime-versions:
       nodejs: 18
   pre_build:
     commands:
-      - echo Installing dependencies
+      - echo "Installing dependencies..."
       - npm install --legacy-peer-deps
   build:
     commands:
-      - echo Build started on `date`
+      - echo "Building project..."
       - npm run build
   post_build:
     commands:
-      - echo Build completed on `date`
+      - echo "Build completed on `date`"
+
 artifacts:
   files:
-    - '**/*'
+    - 'dist/**/*'
+    - 'package.json'
+    - 'package-lock.json'
+    - 'scripts/**/*'
+    - 'appspec.yml'
   base-directory: .

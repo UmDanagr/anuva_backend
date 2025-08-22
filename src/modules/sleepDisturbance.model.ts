@@ -28,6 +28,7 @@ export interface ISleepDisturbance extends Document {
   naps: boolean;
   numberOfNaps: number;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const sleepDisturbanceSchema = new mongoose.Schema<ISleepDisturbance>({

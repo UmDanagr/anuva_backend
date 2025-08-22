@@ -12,6 +12,7 @@ export interface IConcussionDetails extends Document {
   soughtMedicalTreatment: boolean;
   symptomDuration: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const concussionDetailsSchema = new mongoose.Schema(

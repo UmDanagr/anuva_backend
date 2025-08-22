@@ -22,6 +22,7 @@ export interface IHeadache extends Document {
   daysMissingWorkOrSchool: string;
   daysMissingSocialEvents: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const headacheSchema = new mongoose.Schema<IHeadache>(

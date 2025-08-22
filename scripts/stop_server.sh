@@ -1,5 +1,8 @@
-echo '#!/bin/bash' > scripts/stop_server.sh
-echo 'echo "Stopping application..."' >> scripts/stop_server.sh
-echo 'sudo pkill -f "node" || true' >> scripts/stop_server.sh
-echo 'sudo pkill -f "npm" || true' >> scripts/stop_server.sh
-echo 'echo "Application stopped"' >> scripts/stop_server.sh
+#!/bin/bash
+echo "Stopping application..."
+
+# Stop the app gracefully with PM2
+pm2 stop anuva_backend || true
+pm2 delete anuva_backend || true
+
+echo "Application stopped."

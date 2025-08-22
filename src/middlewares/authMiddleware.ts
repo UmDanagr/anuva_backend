@@ -16,7 +16,7 @@ export const is_logged_in = async (
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
 
     const user = await userModel.findById(decoded.userId);
     if (!user) {
@@ -41,7 +41,7 @@ export const is_admin_logged_in = async (
 
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
     const user = await adminUserModel.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({ error: "unauthorized" });

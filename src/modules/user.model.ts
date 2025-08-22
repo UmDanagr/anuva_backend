@@ -7,6 +7,7 @@ dotenv.config();
 export interface IUser extends Document {
   patientId: string;
   email: string;
+  gender: "male" | "female" | "other";
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
@@ -33,10 +34,12 @@ export interface IUser extends Document {
   isFamilyHistoryFormCompleted?: boolean;
   isSubstanceUseHistoryFormCompleted?: boolean;
   isPreviousTestsFormCompleted?: boolean;
+  pcssScore?: Array<number>;
   medicationID?: string;
   injuryId?: string;
   adminId: Types.ObjectId;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const userSchema = new Schema<IUser>(
@@ -50,6 +53,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+    },
+    gender: {
+      type: String,
+      required: true,
     },
     firstName: {
       type: String,
@@ -159,6 +166,9 @@ const userSchema = new Schema<IUser>(
     medicationID: {
       type: String,
     },
+    pcssScore: {
+      type: [Number],
+    },
   },
   {
     timestamps: true,
@@ -172,6 +182,7 @@ userSchema.plugin(fieldEncryption, {
     "email",
     "phoneNumber",
     "dateOfBirth",
+    "gender",
     "firstName",
     "lastName",
     "profileImageUrl",
@@ -187,6 +198,7 @@ userSchema.methods.getDecryptedData = function () {
     return {
       patientId: this.patientId,
       email: this.email,
+      gender: this.gender,
       firstName: this.firstName,
       lastName: this.lastName,
       dateOfBirth: this.dateOfBirth,
@@ -214,6 +226,7 @@ userSchema.methods.getDecryptedData = function () {
       isPreviousTestsFormCompleted: this.isPreviousTestsFormCompleted,
       injuryId: this.injuryId,
       adminId: this.adminId,
+      pcssScore: this.pcssScore,
     };
   } catch (error) {
     console.error("Decryption error:", error);

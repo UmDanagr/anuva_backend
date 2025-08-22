@@ -20,6 +20,7 @@ export interface IFamilyHistory extends Document {
   substanceAbuse: boolean;
   otherConditions: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const familyHistorySchema = new mongoose.Schema<IFamilyHistory>(
@@ -100,6 +101,6 @@ familyHistorySchema.methods.getDecryptedData = function () {
 };
 
 export default mongoose.model<IFamilyHistory>(
-  "familyHistory",
+  "familyhistories",
   familyHistorySchema
 );

@@ -11,6 +11,7 @@ export interface IAllergies extends Document {
   reaction: string;
   treatment: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const allergiesSchema = new mongoose.Schema<IAllergies>(

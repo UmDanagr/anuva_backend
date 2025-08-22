@@ -19,6 +19,7 @@ export interface IPatientInfoForm extends Document {
   enrolledInSchool: boolean;
   school: string;
   decryptFieldsSync: () => void;
+  getDecryptedData: () => any;
 }
 
 const patientInfoFormSchema = new mongoose.Schema(

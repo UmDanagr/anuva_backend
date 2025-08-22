@@ -5,10 +5,11 @@ set -x
 # Update packages
 sudo apt update
 
-# Install Node.js (example)
+# Install Node.js, npm, ts-node, PM2
 sudo apt install -y nodejs npm
+sudo npm install -g typescript ts-node pm2
 
-# Optional: install app dependencies if you have package.json
+# Optional: install dependencies from package.json
 cd /var/www/html
 if [ -f package.json ]; then
     npm install

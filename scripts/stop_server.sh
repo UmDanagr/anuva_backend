@@ -2,8 +2,9 @@
 set -e
 set -x
 
-# Example Node.js server with PM2
-pm2 stop myapp || true  # ignore error if not running
+# Stop PM2 app if exists
+pm2 stop anuva_backend || true
+pm2 delete anuva_backend || true
 
 echo "Server stopped successfully."
 exit 0

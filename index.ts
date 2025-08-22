@@ -23,6 +23,10 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+
+app.get("/",(req,res)=>{
+  return res.send("Server Is Hosted")
+})
 // app.use(express.urlencoded({ extended: false }));
 
 // app.use((req, res, next) => {

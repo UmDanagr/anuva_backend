@@ -1,8 +1,9 @@
 #!/bin/bash
-echo "Stopping application..."
+set -e
+set -x
 
-# Stop the app gracefully with PM2
-pm2 stop anuva_backend || true
-pm2 delete anuva_backend || true
+# Example Node.js server with PM2
+pm2 stop myapp || true  # ignore error if not running
 
-echo "Application stopped."
+echo "Server stopped successfully."
+exit 0

@@ -1,17 +1,18 @@
 #!/bin/bash
-echo "Installing dependencies..."
+set -e
+set -x
 
+# Update packages
+sudo apt update
+
+# Install Node.js (example)
+sudo apt install -y nodejs npm
+
+# Optional: install app dependencies if you have package.json
 cd /var/www/html
-
-# Ensure Node.js 18 is installed
-if ! command -v node &> /dev/null; then
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+if [ -f package.json ]; then
+    npm install
 fi
 
-# Install npm packages (production only for server)
-if [ -f "package.json" ]; then
-    npm install --production --legacy-peer-deps
-fi
-
-echo "Dependencies installed."
+echo "Dependencies installed successfully."
+exit 0

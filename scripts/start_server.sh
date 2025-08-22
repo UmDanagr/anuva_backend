@@ -1,18 +1,15 @@
 #!/bin/bash
-echo "Starting application..."
-
+set -e
+set -x
 cd /var/www/html
 
-# Kill existing app (just in case) before starting fresh
-pm2 delete anuva_backend || true
+# Stop old PM2 process if exists
+pm2 stop anuva_backend || true
 
-# Start compiled JS from dist/
-if [ -f "dist/index.js" ]; then
-    pm2 start dist/index.js --name anuva_backend
-else
-    echo "dist/index.js not found. Did the build run?"
-    exit 1
-fi
+# Start TypeScript app with ts-node
+pm2 start index.ts --name anuva_backend --interpreter ts-node
 
+# Save PM2 process list
 pm2 save
-echo "Application started with PM2."
+
+exit 0

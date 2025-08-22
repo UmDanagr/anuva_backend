@@ -4,12 +4,16 @@ set -x
 
 # Update packages
 sudo apt update
+sudo apt install -y curl build-essential
 
-# Install Node.js, npm, ts-node, PM2
-sudo apt install -y nodejs npm
+# Install Node.js LTS properly (recommended over apt default)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install global npm packages
 sudo npm install -g typescript ts-node pm2
 
-# Optional: install dependencies from package.json
+# Install app dependencies
 cd /var/www/html
 if [ -f package.json ]; then
     npm install

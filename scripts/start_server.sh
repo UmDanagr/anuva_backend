@@ -2,10 +2,18 @@
 set -e
 set -x
 
+# Go to app directory
 cd /var/www/html
 
-# Make sure PATH is correct for SSM (sometimes /usr/local/bin is missing)
+# Ensure PATH includes npm binaries
 export PATH=$PATH:/usr/local/bin
+
+# Set HOME for PM2 (SSM often runs without HOME)
+export HOME=/home/ubuntu
+
+# Ensure PM2 has a directory it can write
+mkdir -p $HOME/.pm2
+chown -R ubuntu:ubuntu $HOME/.pm2
 
 # Stop previous PM2 process if exists
 pm2 stop anuva_backend || true

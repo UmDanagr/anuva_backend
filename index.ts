@@ -67,6 +67,9 @@ app.use(express.json());
 // }));
 
 app.use("/api", all_routers);
+app.get("/",(req,res)=>{
+  return res.send("Server Is Hosted")
+})
 
 app.listen(process.env.PORT, () => {
   console.log(`server is running on port ${process.env.PORT}`);
